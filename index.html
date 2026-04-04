@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Mostrabot — Primeiros Passos</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Biblioteca para os confetes -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -56,13 +58,12 @@
       margin: 0 auto;
     }
 
-    /* ── GRADE E POSICIONAMENTO DO BOTÃO PLAY ── */
     .grid-section { display: flex; flex-direction: column; align-items: center; width: 100%; }
 
     .layout-container {
       display: flex;
       flex-direction: column;
-      align-items: flex-end; /* Alinha o botão à direita da grade */
+      align-items: flex-end;
       gap: 10px;
     }
 
@@ -97,23 +98,20 @@
 
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
-    /* BOTÃO EXECUTAR - AGORA UM MINI RETÂNGULO FINO */
     .btn-exec-mini {
-      /* Largura um pouco menor que a célula, mas altura bem reduzida (fino) */
       width: clamp(35px, 11vw, 55px);
-      height: 25px; /* Altura fixa baixa para ser fino */
+      height: 25px;
       border-radius: 6px;
       background: var(--success-color);
       color: white;
-      font-size: 16px; /* Ícone menor para caber */
+      font-size: 16px;
       border: none;
-      /* Sombra menor para combinar com o tamanho fino */
       box-shadow: 0 3px 0 #1A7A42;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 5px; /* Alinhamento visual com a última coluna */
+      margin-right: 5px;
       padding: 0;
       transition: transform 0.1s, box-shadow 0.1s;
     }
@@ -121,7 +119,6 @@
     .btn-exec-mini:active { transform: translateY(2px); box-shadow: 0 1px 0 #1A7A42; }
     .btn-exec-mini:disabled { background: #90C8A0; filter: grayscale(0.6); box-shadow: none; cursor: not-allowed; }
 
-    /* ── BOTÕES DE COMANDO EM LINHA ── */
     .cmd-row {
       display: flex;
       justify-content: center;
@@ -149,7 +146,6 @@
     .cmd-btn:active { transform: translateY(3px); box-shadow: none; }
     .cmd-arrow { font-size: 24px; color: white; }
 
-    /* ── OUTROS ── */
     .panel { background: white; border-radius: var(--radius); padding: 12px; border: 2px solid var(--border); }
     .status-bar { padding: 10px; text-align: center; border-radius: 10px; font-family: 'Fredoka One'; margin-bottom: 5px; border: 2px solid var(--border); }
     .status-bar.success { color: var(--success-color); border-color: var(--success-color); background: #E8FBF0; }
@@ -219,7 +215,7 @@
 </main>
 
 <script>
-// ── SISTEMA DE SOM (PRESERVADO) ──
+// ── SISTEMA DE SOM ──
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     const osc = audioCtx.createOscillator();
@@ -245,7 +241,7 @@ function playSound(type) {
     }
 }
 
-// ── LÓGICA DO JOGO (PRESERVADA) ──
+// ── LÓGICA DO JOGO ──
 const COLS = 6, ROWS = 6;
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
 const DIRS = { up: { dr: -1, dc: 0, arrow: '⬆' }, down: { dr: 1, dc: 0, arrow: '⬇' }, left: { dr: 0, dc: -1, arrow: '⬅' }, right: { dr: 0, dc: 1, arrow: '➡' } };
@@ -314,7 +310,17 @@ async function executeCommands() {
     currentPos = { row: nr, col: nc }; robot = { ...currentPos }; renderGrid();
   }
 
-  if (robot.row === target.row && robot.col === target.col) { playSound('success'); setStatus('success', '🎉 Você conseguiu!'); }
+  if (robot.row === target.row && robot.col === target.col) { 
+    playSound('success'); 
+    setStatus('success', '🎉 Você conseguiu!');
+    // Lançar confetes!
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#3A8FE8', '#E8773A', '#9B59B6', '#27AE60', '#F5C842']
+    });
+  }
   else { playSound('error'); setStatus('error', '❌ Tente de novo!'); }
   executing = false; setControlsDisabled(false); updateButtons();
 }
