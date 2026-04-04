@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg: #000000;
-            --card: rgba(10, 10, 10, 0.85); /* Semitransparente para ver o fundo */
+            --card: rgba(10, 10, 10, 0.85);
             --accent: #00ff66;
             --text: #ffffff;
             --secondary: #555555;
@@ -26,104 +26,93 @@
             overflow: hidden;
         }
 
-        /* CANVAS DA CHUVA MATRIX (BACKGROUND FIXO PARA TODAS AS TELAS) */
         #matrixBg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1; /* Camada mais baixa */
-            opacity: 0.35; /* Suave para não quebrar a nitidez */
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+            opacity: 0.35;
         }
 
-        /* CONTAINER DO APP (Fica por cima do efeito Matrix) */
         #app-container {
             position: relative;
-            z-index: 2; /* Camada superior ao Canvas */
+            z-index: 2;
             width: 100%;
             height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
 
-        /* TELAS */
-        .screen { display: none; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
-        .active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .screen { display: none; width: 100%; max-width: 450px; padding: 15px; box-sizing: border-box; }
+        .active { display: flex; flex-direction: column; align-items: center; }
 
-        /* MENU */
         .menu-container { 
             text-align: center; 
-            background: rgba(0, 0, 0, 0.7); /* Fundo do menu semitransparente */
-            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 25px;
             border-radius: 24px;
-            backdrop-filter: blur(5px); /* Efeito de vidro fumê */
+            backdrop-filter: blur(5px);
             border: 1px solid #1a1a1a;
+            width: 90%;
         }
         
-        h1 { font-size: 2.5rem; font-weight: 900; letter-spacing: -2px; margin: 0; line-height: 1; text-shadow: 0 0 20px rgba(0, 255, 102, 0.4); }
-        .subtitle { color: var(--secondary); font-size: 0.8rem; margin-top: 10px; letter-spacing: 3px; text-transform: uppercase; }
+        h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; margin: 0; line-height: 1; }
+        .subtitle { color: var(--secondary); font-size: 0.75rem; margin-top: 8px; letter-spacing: 2px; text-transform: uppercase; }
         
-        .mapa-fases { display: flex; gap: 12px; margin: 40px 0; justify-content: center; }
+        .mapa-fases { display: flex; gap: 10px; margin: 30px 0; justify-content: center; }
         .fase-btn {
-            width: 90px; height: 90px; border-radius: 20px;
+            width: 80px; height: 80px; border-radius: 18px;
             background: var(--card); border: 1px solid #1a1a1a;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; transition: 0.3s;
         }
-        .fase-btn.liberada { border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 255, 102, 0.1); }
-        .fase-btn.liberada:hover { transform: translateY(-5px); background: #0f0f0f; border-color: #fff; }
-        .fase-btn span { font-size: 0.6rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; opacity: 0.6; color: var(--text); }
+        .fase-btn.liberada { border-color: var(--accent); }
+        .fase-btn span { font-size: 0.55rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; opacity: 0.6; }
         .fase-btn.bloqueada { opacity: 0.2; cursor: not-allowed; }
 
-        /* HEADER JOGO */
         .header-jogo {
             width: 100%; display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #111;
-            background: rgba(0, 0, 0, 0.85); padding: 10px; border-radius: 10px;
-            backdrop-filter: blur(5px);
+            margin-bottom: 15px; background: rgba(0, 0, 0, 0.85); padding: 10px; border-radius: 10px;
         }
         .btn-voltar {
             background: none; border: 1px solid #333; color: #888;
-            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;
+            padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.7rem;
         }
 
-        /* GRID E DISPLAY (COMO GLASSMORPHISM) */
         .binary-box {
             font-family: 'Courier New', monospace;
-            background: rgba(5, 5, 5, 0.9); padding: 20px; border-radius: 15px;
-            color: var(--accent); font-size: 1.1rem; letter-spacing: 6px;
-            border: 1px solid #222; margin-bottom: 20px;
-            line-height: 1.3; text-shadow: 0 0 5px var(--accent);
-            backdrop-filter: blur(5px);
+            background: rgba(5, 5, 5, 0.9); padding: 15px; border-radius: 12px;
+            color: var(--accent); font-size: 1rem; letter-spacing: 4px;
+            border: 1px solid #222; margin-bottom: 15px; width: 100%; box-sizing: border-box;
+            text-align: center;
         }
 
         .grid { 
-            display: grid; gap: 5px; padding: 12px; 
+            display: grid; gap: 4px; padding: 10px; 
             background: rgba(8, 8, 8, 0.9); 
             border-radius: 12px; border: 1px solid #222; 
-            backdrop-filter: blur(5px);
         }
-        .cell { width: 34px; height: 34px; background: rgba(21, 21, 21, 0.6); border-radius: 5px; cursor: pointer; transition: background 0.1s; }
-        .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-        .cell.correct { background: var(--accent); opacity: 0.5; }
-        .cell.wrong { background: var(--error); box-shadow: 0 0 15px var(--error); }
+        /* Células reduzidas para caber no Nível 3 */
+        .cell { width: 30px; height: 30px; background: rgba(21, 21, 21, 0.6); border-radius: 4px; cursor: pointer; }
+        .cell.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        .cell.correct { background: var(--accent); opacity: 0.4; }
+        .cell.wrong { background: var(--error); }
 
-        /* CONTROLES */
-        .controls { display: flex; gap: 15px; width: 100%; margin-top: 30px; }
+        /* CONTROLES OTIMIZADOS */
+        .controls { display: flex; gap: 10px; width: 100%; margin-top: 20px; }
         .btn-game {
-            padding: 18px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;
-            letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.2s;
-            flex: 1; outline: none;
+            padding: 14px; border-radius: 10px; font-weight: 700; font-size: 0.75rem;
+            letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: 0.2s;
+            flex: 1; outline: none; border: none;
         }
         .btn-compilar {
-            background: var(--accent); color: #000; border: none;
-            box-shadow: 0 4px 0 #008833;
+            background: var(--accent); color: #000;
+            box-shadow: 0 3px 0 #008833;
         }
-        .btn-compilar:active { transform: translateY(3px); box-shadow: 0 1px 0 #008833; }
+        .btn-compilar:active { transform: translateY(2px); box-shadow: 0 1px 0 #008833; }
         
-        .btn-limpar { background: transparent; color: #fff; border: 1px solid #333; backdrop-filter: blur(10px); }
-        .btn-limpar:hover { background: rgba(255,255,255,0.05); border-color: #555; }
+        .btn-limpar { background: transparent; color: #fff; border: 1px solid #333; backdrop-filter: blur(5px); }
 
         input[type="file"] { display: none; }
     </style>
@@ -133,6 +122,7 @@
 <canvas id="matrixBg"></canvas>
 
 <div id="app-container">
+    <!-- MENU -->
     <div id="telaMenu" class="screen active">
         <div class="menu-container">
             <h1>PIXEL<br><span id="dynamicAccent" style="color:var(--accent)">BINÁRIO</span></h1>
@@ -144,19 +134,20 @@
                 <div id="fase3" class="fase-btn" onclick="jogarNivel(2)">03<span>Hard</span></div>
             </div>
 
-            <label for="fileInput" style="color:var(--accent); font-size: 0.75rem; cursor:pointer; font-weight:700; letter-spacing: 1px;">
+            <label for="fileInput" style="color:var(--accent); font-size: 0.7rem; cursor:pointer; font-weight:700; opacity: 0.8;">
                 [ INJETAR CÓDIGO EXTERNO ]
             </label>
             <input type="file" id="fileInput" accept="image/*">
         </div>
     </div>
 
+    <!-- JOGO -->
     <div id="jogoTela" class="screen">
         <div class="header-jogo">
             <button class="btn-voltar" onclick="irParaHome()">← SAIR</button>
             <div style="text-align: right;">
-                <div id="statusFase" class="subtitle" style="margin:0; color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
-                <div id="nomeObjeto" style="font-size: 1rem; font-weight: 700;">AGUARDANDO...</div>
+                <div id="statusFase" class="subtitle" style="margin:0; color:var(--accent); font-weight:bold; font-size:0.65rem;">MÓDULO 01</div>
+                <div id="nomeObjeto" style="font-size: 0.9rem; font-weight: 700;">AGUARDANDO...</div>
             </div>
         </div>
 
@@ -164,7 +155,7 @@
         <div id="gridDisplay" class="grid"></div>
         
         <div class="controls">
-            <button class="btn-game btn-compilar" onclick="validar()">Executar</button>
+            <button class="btn-game btn-compilar" onclick="validar()">Compilar</button>
             <button class="btn-game btn-limpar" onclick="limpar()">Reset</button>
         </div>
     </div>
@@ -173,79 +164,52 @@
 <canvas id="helperCanvas" style="display:none;"></canvas>
 
 <script>
-    /* --- EFEITO CHUVA MATRIX (UNIVERSAL) --- */
+    /* --- EFEITO MATRIX --- */
     const matrixCanvas = document.getElementById('matrixBg');
     const mCtx = matrixCanvas.getContext('2d');
+    let drops = [];
+    const fontSize = 16;
+    const letters = "0101010101";
 
-    function resizeCanvas() {
+    function initMatrix() {
         matrixCanvas.width = window.innerWidth;
         matrixCanvas.height = window.innerHeight;
+        const columns = matrixCanvas.width / fontSize;
+        drops = Array(Math.floor(columns)).fill(1);
     }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    const letters = "01010101010101010101010101010101010101010101"; // Focado puramente em binário
-    const fontSize = 16;
-    let columns = matrixCanvas.width / fontSize;
-    let drops = [];
-
-    function initDrops() {
-        columns = matrixCanvas.width / fontSize;
-        drops = [];
-        for (let x = 0; x < columns; x++) drops[x] = 1;
-    }
-    initDrops();
-    window.addEventListener('resize', initDrops); // Reinicia drops se redimensionar a tela
 
     function drawMatrix() {
         mCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
         mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-
-        // Pega a cor atual do tema do jogo para a chuva
-        const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        mCtx.fillStyle = currentAccent || "#00ff66";
+        const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+        mCtx.fillStyle = currentAccent;
         mCtx.font = fontSize + "px monospace";
-
         for (let i = 0; i < drops.length; i++) {
             const text = letters.charAt(Math.floor(Math.random() * letters.length));
             mCtx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-            if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
+            if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) drops[i] = 0;
             drops[i]++;
         }
     }
-    // Loop da animação
+    window.addEventListener('resize', initMatrix);
+    initMatrix();
     setInterval(drawMatrix, 33);
 
-
     /* --- LÓGICA DO JOGO --- */
-    const fileInput = document.getElementById('fileInput');
-    const helperCanvas = document.getElementById('helperCanvas');
-    const ctx = helperCanvas.getContext('2d');
     let mapaBinario = [];
     let progresso = parseInt(localStorage.getItem('progressoBinario')) || 0;
-
-    const temas = [
-        { accent: "#00ff66" }, { accent: "#38bdf8" }, 
-        { accent: "#ff3e00" }, { accent: "#a855f7" }
-    ];
+    const temas = [{ accent: "#00ff66" }, { accent: "#38bdf8" }, { accent: "#ff3e00" }, { accent: "#a855f7" }];
 
     const bancosDeDados = [
-        { tarefas: [{mapa: ["0110", "1001", "1001", "0110"], nome: "Círculo"}, {mapa: ["1111", "1001", "1001", "1111"], nome: "Quadrado"}] },
+        { tarefas: [{mapa: ["0110", "1001", "1001", "0110"], nome: "Círculo"}] },
         { tarefas: [{mapa: ["011110", "100001", "101101", "101101", "100001", "011110"], nome: "Robô"}] },
         { tarefas: [{mapa: ["00011000", "00111100", "01111110", "11011011", "11111111", "00100100", "01011010", "10100101"], nome: "Invader"}] }
     ];
 
-    function mudarTema() {
-        const tema = temas[Math.floor(Math.random() * temas.length)];
-        document.documentElement.style.setProperty('--accent', tema.accent);
-    }
-
     function jogarNivel(idx) {
         if (idx > progresso) return;
-        mudarTema();
+        const tema = temas[idx % temas.length];
+        document.documentElement.style.setProperty('--accent', tema.accent);
         const tarefasNivel = bancosDeDados[idx].tarefas;
         const sorteio = tarefasNivel[Math.floor(Math.random() * tarefasNivel.length)];
         mapaBinario = sorteio.mapa;
@@ -253,37 +217,6 @@
         document.getElementById('nomeObjeto').textContent = sorteio.nome;
         montarJogo(mapaBinario[0].length);
     }
-
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        mudarTema();
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                const size = 10;
-                helperCanvas.width = size; helperCanvas.height = size;
-                ctx.drawImage(img, 0, 0, size, size);
-                const data = ctx.getImageData(0, 0, size, size).data;
-                mapaBinario = [];
-                for (let y = 0; y < size; y++) {
-                    let linha = "";
-                    for (let x = 0; x < size; x++) {
-                        const i = (y * size + x) * 4;
-                        const lum = (data[i] + data[i+1] + data[i+2]) / 3;
-                        linha += (lum < 128 && data[i+3] > 50) ? "1" : "0";
-                    }
-                    mapaBinario.push(linha);
-                }
-                document.getElementById('statusFase').textContent = "EXTERNO";
-                document.getElementById('nomeObjeto').textContent = "Custom Script";
-                montarJogo(size);
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
 
     function montarJogo(colunas) {
         document.getElementById('telaMenu').classList.remove('active');
@@ -293,10 +226,15 @@
         grid.innerHTML = "";
         grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
         
+        // Ajuste dinâmico de tamanho para matrizes grandes (Nível 3)
+        const cellSize = colunas > 6 ? "28px" : "34px";
+
         mapaBinario.forEach(linha => {
             [...linha].forEach(bit => {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
+                cell.style.width = cellSize;
+                cell.style.height = cellSize;
                 cell.dataset.bit = bit;
                 cell.onclick = () => cell.classList.toggle('active');
                 grid.appendChild(cell);
@@ -318,9 +256,9 @@
         if (!erro) {
             progresso = Math.min(progresso + 1, 2);
             localStorage.setItem('progressoBinario', progresso);
-            setTimeout(() => { alert("✓ SUCESSO: Matriz Validada!"); irParaHome(); }, 300);
+            setTimeout(() => { alert("✓ COMPILAÇÃO CONCLUÍDA!"); irParaHome(); }, 300);
         } else {
-            alert("× ERRO: Bits inconsistentes detectados.");
+            alert("× ERRO DE SINTAXE: Verifique os bits.");
         }
     }
 
