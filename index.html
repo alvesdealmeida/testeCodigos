@@ -257,6 +257,15 @@
 <canvas id="helperCanvas" style="display:none;"></canvas>
 
 <script>
+    // Defina a versão atual do seu projeto aqui
+    const VERSAO_APP = "2.0.2"; 
+
+// Verifica se a versão salva no navegador do usuário é diferente da atual
+    if (localStorage.getItem('versao_cache') !== VERSAO_APP) {
+        localStorage.setItem('versao_cache', VERSAO_APP);
+    // Limpa o cache e recarrega a página de forma forçada
+        window.location.reload(true); 
+}
     const fileInput = document.getElementById('fileInput');
     const helperCanvas = document.getElementById('helperCanvas');
     const ctx = helperCanvas.getContext('2d');
