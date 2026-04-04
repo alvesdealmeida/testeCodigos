@@ -1,262 +1,392 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Pro - Mobile Exam Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Binário: Missão Programação</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { 
-            --navy: #0f172a; --slate: #64748b; --emerald: #10b981; 
-            --bg: #f8fafc; --accent: #3b82f6; --danger: #ef4444; --gold: #f59e0b; 
-        }
-        * { box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; }
-        
-        body { 
-            background: var(--bg); color: var(--navy); font-family: 'Inter', system-ui, sans-serif; 
-            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+            --panel-bg: rgba(31, 41, 55, 0.7);
+            --accent-green: #00ff66;
+            --accent-glow: rgba(0, 255, 102, 0.3);
+            --text-main: #f3f4f6;
+            --locked: #374151;
         }
 
-        /* Header e Stats */
-        header { 
-            background: var(--navy); color: white; padding: 12px; 
-            display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;
-        }
-        #stats-bar { 
-            display: grid; grid-template-columns: 1fr 1fr; background: white; 
-            padding: 10px 15px; border-bottom: 2px solid #e2e8f0; font-weight: 800; font-size: 0.9rem;
-        }
-
-        /* Área de Jogo Otimizada para Mobile */
-        #game-viewport { 
-            position: relative; flex-grow: 1; background: #fff; 
-            margin: 10px; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;
+        /* RESTRIÇÃO DESKTOP */
+        #aviso-mobile-apenas {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--bg-gradient);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
         }
 
-        .problem-node { 
-            position: absolute; width: 120px; padding: 12px; background: white; 
-            border: 2px solid var(--navy); border-radius: 8px; text-align: center;
-            font-size: 0.9rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: background 0.3s, transform 0.1s;
+        @media screen and (min-width: 1025px) and (pointer: fine) {
+            #aviso-mobile-apenas { display: flex; }
+            body { overflow: hidden; }
         }
 
-        /* Feedback de Erro (Pedagogia do Erro) */
-        .node-error { background: #fee2e2 !important; border-color: var(--danger) !important; color: var(--danger); z-index: 50; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            text-align: center;
+            overflow-x: hidden;
+        }
 
-        /* Área de Input e Numpad */
-        #input-display { 
-            font-size: 2.2rem; color: var(--navy); height: 60px; 
-            display: flex; align-items: center; justify-content: center;
-            background: #f1f5f9; border-top: 2px solid #cbd5e1; font-weight: 300;
+        body::before {
+            content: "0101 1100 0011 1010 0110 0001\n1010 0011 1100 0110 1010 1111\n0011 1010 0110 1100 0011 1010";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: rgba(0, 255, 102, 0.03);
+            white-space: pre;
+            pointer-events: none;
+            z-index: -1;
+            text-align: left;
+            padding: 20px;
         }
-        
-        #numpad { 
-            display: grid; grid-template-columns: repeat(3, 1fr); 
-            background: #cbd5e1; gap: 1px; width: 100%;
-        }
-        .key { 
-            background: white; border: none; padding: 22px; font-size: 1.6rem; 
-            color: var(--navy); font-weight: 600; transition: background 0.1s;
-        }
-        .key:active { background: #e2e8f0; }
-        .key-special { background: #f8fafc; color: var(--slate); }
 
-        /* Overlays */
-        .full-overlay { 
-            position: fixed; inset: 0; background: var(--bg); z-index: 2000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        .screen { display: none; padding: 15px; min-height: 100vh; box-sizing: border-box; }
+        .active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .menu-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
         }
-        .card { 
-            background: white; border-radius: 16px; padding: 25px; width: 100%; max-width: 400px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center;
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #00ff66, #00bcff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .btn-start {
-            width: 100%; padding: 15px; margin-top: 10px; background: var(--navy);
-            color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem;
+
+        .mapa-fases {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .fase-btn {
+            width: 65px; height: 65px;
+            border-radius: 14px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1rem;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #4b5563;
+            position: relative;
+        }
+        .fase-btn span { font-size: 0.55rem; text-transform: uppercase; margin-top: 2px; }
+
+        /* ESTADO LIBERADO */
+        .fase-btn.liberada {
+            background: rgba(0, 255, 102, 0.1);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            opacity: 1;
+            cursor: pointer;
+            pointer-events: auto !important;
+        }
+
+        /* ESTADO BLOQUEADO */
+        .fase-btn.bloqueada {
+            opacity: 0.3;
+            filter: grayscale(1);
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+
+        .fase-btn.bloqueada::after {
+            content: "🔒";
+            position: absolute;
+            top: -5px; right: -5px;
+            font-size: 12px;
+        }
+
+        .btn-upload {
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            min-width: 80px;
+            padding: 8px 16px;
+            margin: 10px auto;
+            background: rgba(0, 188, 255, 0.1);
+            border: 1px solid #00bcff; color: #00bcff;
+            border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer;
+        }
+
+        .game-header { 
+            width: 100%; display: flex; justify-content: space-between; 
+            align-items: center; padding: 10px 15px; box-sizing: border-box; 
+        }
+
+        .btn-menu-small { padding: 6px 12px !important; font-size: 0.75rem !important; }
+
+        .badge-teste {
+            background-color: #f59e0b;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        #statusFase { font-size: 0.9rem; font-weight: bold; color: #00bcff; }
+        .modo-text { font-size: 11px !important; color: #6b7280; }
+
+        .split-container {
+            display: flex; width: 100%; flex-grow: 1;
+            margin: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
+
+        .binary-list {
+            font-family: 'Courier New', monospace;
+            color: var(--accent-green);
+            font-size: clamp(0.9rem, 1.8vw, 1.4rem);
+            letter-spacing: 3px;
+        }
+
+        .grid { display: grid; gap: 3px; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 8px; }
+        .cell {
+            width: clamp(18px, 4vw, 30px);
+            height: clamp(18px, 4vw, 30px);
+            background: #1f2937;
+            border-radius: 3px;
+        }
+        .cell.active { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .cell.correct { background: #10b981; }
+        .cell.wrong { background: #ef4444; }
+
+        .controls { padding-bottom: 20px; }
+        button.action-btn {
+            padding: 10px 16px; border: none; border-radius: 8px;
+            font-weight: bold; cursor: pointer; font-size: 0.8rem;
+            margin: 3px; transition: 0.2s;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-success { background: #10b981; color: white; }
+        .btn-primary { background: #00bcff; color: white; }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #9ca3af; }
+
+        input[type="file"] { display: none; }
+
+        @media (max-width: 768px) {
+            .split-container { flex-direction: column; }
+            .pane { padding: 15px 5px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Tela de Início -->
-    <div id="start-screen" class="full-overlay">
-        <div class="card">
-            <h1 style="margin-top:0">MATH EXAM PRO</h1>
-            <p style="color:var(--slate)">Treinamento de Alta Performance</p>
-            <button class="btn-start" onclick="init()">INICIAR CERTIFICAÇÃO</button>
-            <p style="font-size: 0.7rem; margin-top: 20px; color: #94a3b8">Otimizado para Tablets e Celulares</p>
+<div id="aviso-mobile-apenas">
+    <h1>📱 Acesso Restrito</h1>
+    <p>Este simulador foi projetado exclusivamente para <b>dispositivos móveis</b>.</p>
+</div>
+
+<div id="telaMenu" class="screen active">
+    <div class="menu-card">
+        <h1>Pixel Binário</h1>
+        <p style="font-size: 0.85rem; color: #9ca3af;">Lógica de Programação Visual</p>
+        
+        <div class="mapa-fases">
+            <div id="fase1" class="fase-btn">1<span>Fácil</span></div>
+            <div id="fase2" class="fase-btn">2<span>Médio</span></div>
+            <div id="fase3" class="fase-btn">3<span>Difícil</span></div>
+        </div>
+
+        <div style="display: flex; justify-content: center;">
+            <label for="fileInput" class="btn-upload">📁 MODO LIVRE (IMG)</label>
+        </div>
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+</div>
+
+<div id="jogoTela" class="screen">
+    <div class="game-header">
+        <button class="action-btn btn-ghost btn-menu-small" onclick="irParaHome()">⬅ Menu</button>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <span class="badge-teste">Dev Mode</span>
+        </div>
+        <div style="text-align: right;">
+            <div id="statusFase">Fase</div>
+            <div class="modo-text">Binário ➔ Pixel</div>
+        </div>
+    </div>
+    
+    <div class="split-container" id="captureTarget">
+        <div class="pane left-pane">
+            <span style="color: #4b5563; margin-bottom: 10px; font-size: 9px; font-weight: bold; letter-spacing: 1px;">ALGORITMO</span>
+            <div id="binaryDisplay" class="binary-list"></div>
+        </div>
+        <div class="pane right-pane">
+            <span style="color: #4b5563; margin-bottom: 10px; font-size: 9px; font-weight: bold; letter-spacing: 1px;">COMPILADOR</span>
+            <div id="gridDisplay" class="grid"></div>
         </div>
     </div>
 
-    <!-- Tela de Resultado -->
-    <div id="end-screen" class="full-overlay" style="display:none">
-        <div class="card" id="result-content"></div>
+    <div class="controls">
+        <button class="action-btn btn-success" onclick="validar()">⚙️ COMPILAR</button>
+        <button class="action-btn btn-primary" onclick="baixarDesafio()">📥 PNG</button>
+        <button class="action-btn btn-ghost" onclick="limpar()">🧹 RESET</button>
     </div>
+</div>
 
-    <header>
-        <span id="ui-level">NÍVEL 1</span>
-        <div id="timer-display">00:00</div>
-        <button style="background:none; border:1px solid white; color:white; border-radius:4px" onclick="location.reload()">Sair</button>
-    </header>
-   
-    <div id="stats-bar">
-        <div style="color:var(--accent)">PONTOS: <span id="ui-score">0</span></div>
-        <div style="text-align:right; color:var(--danger)">ERROS: <span id="ui-errors">0</span>/5</div>
-    </div>
+<canvas id="helperCanvas" style="display:none;"></canvas>
 
-    <div id="game-viewport"></div>
-
-    <div id="input-display">_</div>
-
-    <div id="numpad">
-        <button class="key" onclick="tap(1)">1</button>
-        <button class="key" onclick="tap(2)">2</button>
-        <button class="key" onclick="tap(3)">3</button>
-        <button class="key" onclick="tap(4)">4</button>
-        <button class="key" onclick="tap(5)">5</button>
-        <button class="key" onclick="tap(6)">6</button>
-        <button class="key" onclick="tap(7)">7</button>
-        <button class="key" onclick="tap(8)">8</button>
-        <button class="key" onclick="tap(9)">9</button>
-        <button class="key key-special" onclick="tap('C')">C</button>
-        <button class="key" onclick="tap(0)">0</button>
-        <button class="key key-special" onclick="tap('.')">.</button>
-    </div>
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const helperCanvas = document.getElementById('helperCanvas');
+    const ctx = helperCanvas.getContext('2d');
+    let mapaBinario = [];
+    let faseAtualIndex = 0;
     
-    <script>
-        const viewport = document.getElementById('game-viewport');
-        const inputDisplay = document.getElementById('input-display');
-        let score = 0, errors = 0, level = 1, speed = 0.6;
-        let nodes = [], currentInput = "", isLive = false, startTime = 0;
+    const desafiosDoSistema = [
+        { nome: "Fase 1: Geometria", dados: ["011110","100001","100001","100001","100001","011110"] },
+        { nome: "Fase 2: O Alien", dados: ["0001111000","0011111100","0111111110","1111111111","1100110011","1100110011","1111111111","0110000110","0011111100","0001111000"] },
+        { nome: "Fase 3: Labirinto", dados: ["111111111111","100000000001","101111111101","101000000101","101011110101","101010010101","101010010101","101011110101","101000000101","101111111101","100000000001","111111111111"] }
+    ];
 
-        // Gerador Progressivo de Matemática Avançada
-        function generateMath() {
-            const difficulty = Math.min(level, 15);
-            let text, ans;
+    function atualizarMapaVisual() {
+        // Se for a primeira vez, define progresso como 0 (apenas fase 1 aberta)
+        if (localStorage.getItem('progressoBinario') === null) {
+            localStorage.setItem('progressoBinario', '0');
+        }
 
-            if (difficulty < 3) { // Aritmética básica
-                let a = r(10, 50), b = r(10, 30);
-                text = `${a} + ${b}`; ans = a + b;
-            } else if (difficulty < 7) { // Álgebra 1
-                let x = r(2, 10), m = r(2, 5);
-                let res = m * x + r(1, 10);
-                text = `<small>Ache x:</small><br>${m}x + ${res - (m*x)} = ${res}`;
-                ans = x;
-            } else { // Geometria e Lógica
-                let base = r(5, 12), altura = r(4, 10);
-                text = `<small>Área Triâng.</small><br>b:${base} h:${altura}`;
-                ans = (base * altura) / 2;
+        let faseDesbloqueada = parseInt(localStorage.getItem('progressoBinario'));
+
+        for (let i = 0; i < 3; i++) {
+            const btn = document.getElementById(`fase${i+1}`);
+            
+            // Remove clique anterior para evitar bugs
+            btn.onclick = null;
+
+            if (i <= faseDesbloqueada) {
+                btn.classList.remove('bloqueada');
+                btn.classList.add('liberada');
+                // Atribui o evento de clique via JS para controle total
+                btn.onclick = (function(index) {
+                    return function() { jogarFase(index); };
+                })(i);
+            } else {
+                btn.classList.remove('liberada');
+                btn.classList.add('bloqueada');
+                // Bloqueia clique
+                btn.onclick = function(e) { 
+                    e.preventDefault(); 
+                    return false; 
+                };
             }
-            return { text, ans };
         }
+    }
 
-        function init() {
-            document.getElementById('start-screen').style.display = 'none';
-            isLive = true; startTime = Date.now();
-            spawn(); loop();
-        }
+    function jogarFase(idx) {
+        faseAtualIndex = idx;
+        mapaBinario = desafiosDoSistema[idx].dados;
+        document.getElementById('statusFase').textContent = desafiosDoSistema[idx].nome;
+        montarJogo(mapaBinario[0].length);
+    }
 
-        function tap(v) {
-            if(!isLive) return;
-            if(window.navigator.vibrate) window.navigator.vibrate(10); // Feedback háptico
+    function montarJogo(colunas) {
+        document.getElementById('telaMenu').classList.remove('active');
+        document.getElementById('jogoTela').classList.add('active');
+        const binariosFormatados = mapaBinario.map(linha => [...linha].join(" ")).join('<br>');
+        document.getElementById('binaryDisplay').innerHTML = binariosFormatados;
+        const grid = document.getElementById('gridDisplay');
+        grid.innerHTML = "";
+        grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
+        
+        mapaBinario.forEach(linha => {
+            [...linha].forEach(bit => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.bit = bit;
+                cell.onclick = () => { 
+                    cell.classList.toggle('active'); 
+                    cell.classList.remove('correct', 'wrong'); 
+                };
+                grid.appendChild(cell);
+            });
+        });
+    }
 
-            if(v === 'C') currentInput = "";
-            else if(v === '.') { if(!currentInput.includes('.')) currentInput += '.'; }
-            else if(currentInput.length < 5) currentInput += v;
+    function validar() {
+        const cells = document.querySelectorAll('.cell');
+        let erro = false;
+        cells.forEach(c => {
+            const is1 = c.dataset.bit === "1";
+            const active = c.classList.contains('active');
+            if (is1 && active) c.classList.add('correct');
+            else if (!is1 && active) { c.classList.add('wrong'); erro = true; }
+            else if (is1 && !active) erro = true;
+        });
 
-            inputDisplay.innerText = currentInput || "_";
-            checkMatch();
-        }
-
-        function checkMatch() {
-            const idx = nodes.findIndex(n => n.ans.toString() === currentInput);
-            if(idx !== -1) {
-                // Sucesso!
-                score += 50 * level;
-                document.getElementById('ui-score').innerText = score;
-                viewport.removeChild(nodes[idx].el);
-                nodes.splice(idx, 1);
-                currentInput = "";
-                inputDisplay.innerText = "_";
+        if (!erro) {
+            setTimeout(() => {
+                alert("🎉 Algoritmo Compilado com Sucesso!");
                 
-                // Evolução de nível
-                if(score > level * 500) {
-                    level++;
-                    speed += 0.15;
-                    document.getElementById('ui-level').innerText = `NÍVEL ${level}`;
+                let progressoAtual = parseInt(localStorage.getItem('progressoBinario')) || 0;
+                // Só desbloqueia a próxima se for a fase atual que ele está tentando abrir
+                if (faseAtualIndex === progressoAtual) {
+                    let novoProgresso = faseAtualIndex + 1;
+                    if (novoProgresso > 2) novoProgresso = 2; 
+                    localStorage.setItem('progressoBinario', novoProgresso.toString());
                 }
-            }
+                irParaHome();
+            }, 300);
+        } else { 
+            alert("❌ Erro de Sintaxe! Verifique os pixels ativos."); 
         }
+    }
 
-        function spawn() {
-            if(!isLive) return;
-            const prob = generateMath();
-            const div = document.createElement('div');
-            div.className = 'problem-node';
-            div.innerHTML = prob.text;
-            div.style.left = r(10, viewport.clientWidth - 130) + "px";
-            div.style.top = "-80px";
-            
-            viewport.appendChild(div);
-            nodes.push({ el: div, ans: prob.ans, y: -80 });
-            
-            // Intervalo de spawn diminui com o nível
-            setTimeout(spawn, Math.max(1200, 4500 - (level * 350)));
-        }
+    function irParaHome() {
+        document.getElementById('jogoTela').classList.remove('active');
+        document.getElementById('telaMenu').classList.add('active');
+        fileInput.value = ""; 
+        atualizarMapaVisual();
+    }
 
-        function loop() {
-            if(!isLive) return;
-            for(let i = nodes.length - 1; i >= 0; i--) {
-                nodes[i].y += speed;
-                nodes[i].el.style.top = nodes[i].y + "px";
+    function limpar() { 
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active', 'correct', 'wrong')); 
+    }
 
-                // Colisão com a base (Erro)
-                if(nodes[i].y > viewport.clientHeight - 20) {
-                    handleError(i);
-                }
-            }
-            requestAnimationFrame(loop);
-        }
+    function baixarDesafio() {
+        const target = document.getElementById('captureTarget');
+        html2canvas(target, { backgroundColor: '#0b0f19' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'meu-codigo-pixel.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
 
-        function handleError(index) {
-            errors++;
-            document.getElementById('ui-errors').innerText = errors;
-            
-            // Pedagogia do erro: mostra a resposta antes de remover
-            const el = nodes[index].el;
-            el.classList.add('node-error');
-            el.innerHTML = `RESP: ${nodes[index].ans}`;
-            
-            nodes.splice(index, 1);
-            setTimeout(() => { if(el.parentNode) viewport.removeChild(el); }, 1000);
-
-            if(errors >= 5) conclude();
-        }
-
-        function conclude() {
-            isLive = false;
-            const endScreen = document.getElementById('end-screen');
-            const resultContent = document.getElementById('result-content');
-            endScreen.style.display = 'flex';
-            
-            resultContent.innerHTML = `
-                <h2>EXAME FINALIZADO</h2>
-                <div style="font-size: 2rem; margin: 20px 0">${score}</div>
-                <p>Nível Máximo: ${level}</p>
-                <button class="btn-start" onclick="location.reload()">TENTAR NOVAMENTE</button>
-            `;
-        }
-
-        function r(min, max) { return Math.floor(Math.random() * (max - min + 1) + min); }
-
-        // Timer
-        setInterval(() => {
-            if(isLive) {
-                const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                const s = (elapsed % 60).toString().padStart(2, '0');
-                document.getElementById('timer-display').innerText = `${m}:${s}`;
-            }
-        }, 1000);
-    </script>
+    window.onload = atualizarMapaVisual;
+</script>
 </body>
 </html>
