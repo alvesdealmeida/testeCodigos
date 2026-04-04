@@ -26,20 +26,65 @@
             overflow-x: hidden;
         }
 
-        /* ILUSTRAÇÃO BINÁRIA CSS */
+        /* ILUSTRAÇÃO BINÁRIA CSS ANIMADA */
         .binary-hero {
-            width: 120px;
-            height: 60px;
+            width: 130px;
+            height: 70px;
             margin: 0 auto 20px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            opacity: 0.5;
+            gap: 10px;
         }
+        
         .hero-bit {
-            width: 20px; height: 20px; border: 1px solid var(--accent);
+            width: 24px; height: 24px; 
+            border: 1px solid rgba(0, 255, 102, 0.2);
             display: flex; align-items: center; justify-content: center;
-            font-size: 10px; color: var(--accent); border-radius: 4px;
+            font-size: 12px; font-family: monospace; color: var(--accent); 
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            /* Animação suave de pulsar a borda */
+            animation: pulseBorder 4s infinite alternate;
+        }
+
+        /* Conteúdo do bit que muda aleatoriamente via CSS */
+        .hero-bit::before {
+            content: '1';
+            animation: glitchText 2s infinite step-end;
+        }
+
+        /* Variações de atraso para não piscarem todos juntos */
+        .hero-bit:nth-child(2)::before { animation-delay: 0.3s; content: '0'; }
+        .hero-bit:nth-child(3)::before { animation-delay: 1.2s; }
+        .hero-bit:nth-child(4)::before { animation-delay: 0.7s; content: '0'; }
+        .hero-bit:nth-child(5)::before { animation-delay: 1.5s; content: '0'; }
+        .hero-bit:nth-child(6)::before { animation-delay: 0.9s; }
+        .hero-bit:nth-child(7)::before { animation-delay: 0.2s; content: '0'; }
+        .hero-bit:nth-child(8)::before { animation-delay: 1.8s; }
+
+        /* Animação de pulsar borda e fundo */
+        @keyframes pulseBorder {
+            0% { border-color: rgba(0, 255, 102, 0.1); background: rgba(0, 255, 102, 0); }
+            50% { border-color: rgba(0, 255, 102, 0.5); background: rgba(0, 255, 102, 0.03); }
+            100% { border-color: rgba(0, 255, 102, 0.1); background: rgba(0, 255, 102, 0); }
+        }
+
+        /* Animação de trocar texto e piscar cor */
+        @keyframes glitchText {
+            0%, 80%, 100% { content: '1'; color: var(--accent); opacity: 1; }
+            81% { content: '0'; color: #fff; opacity: 0.5; }
+            82% { content: '1'; color: var(--accent); opacity: 1; }
+            83% { content: '0'; color: var(--accent); opacity: 0.1; }
+            85% { content: '1'; color: var(--accent); opacity: 1; }
+        }
+        
+        /* Ajuste específico para os que devem ser predominantemente 0 */
+        .hero-bit[data-bit="0"]::before { animation: glitchTextZero 2.5s infinite step-end; }
+        @keyframes glitchTextZero {
+            0%, 70%, 100% { content: '0'; color: rgba(0, 255, 102, 0.4); }
+            71% { content: '1'; color: var(--accent); opacity: 1; }
+            73% { content: '0'; color: rgba(0, 255, 102, 0.4); }
         }
 
         /* TELAS */
@@ -47,9 +92,9 @@
         .active { display: flex; flex-direction: column; align-items: center; }
 
         /* MENU */
-        .menu-container { text-align: center; margin-top: 10vh; }
+        .menu-container { text-align: center; margin-top: 8vh; }
         h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; margin: 0; line-height: 1; }
-        .subtitle { color: var(--secondary); font-size: 0.9rem; margin-top: 10px; letter-spacing: 1px; }
+        .subtitle { color: var(--secondary); font-size: 0.8rem; margin-top: 10px; letter-spacing: 2px; text-transform: uppercase; }
         
         .mapa-fases { display: flex; gap: 12px; margin: 40px 0; justify-content: center; }
         .fase-btn {
@@ -79,6 +124,7 @@
             background: #050505; padding: 20px; border-radius: 15px;
             color: var(--accent); font-size: 1.1rem; letter-spacing: 6px;
             border: 1px solid #111; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,1);
+            line-height: 1.3;
         }
 
         .grid { display: grid; gap: 5px; padding: 12px; background: #080808; border-radius: 12px; border: 1px solid #151515; }
@@ -113,17 +159,16 @@
 <body>
 
 <div id="app-container" style="width: 100%;">
-    <!-- MENU -->
     <div id="telaMenu" class="screen active">
         <div class="menu-container">
             <div class="binary-hero">
-                <div class="hero-bit">1</div><div class="hero-bit" style="opacity:0.3">0</div>
-                <div class="hero-bit">1</div><div class="hero-bit">1</div>
-                <div class="hero-bit" style="opacity:0.3">0</div><div class="hero-bit">1</div>
-                <div class="hero-bit">0</div><div class="hero-bit">1</div>
+                <div class="hero-bit"></div><div class="hero-bit" data-bit="0"></div>
+                <div class="hero-bit"></div><div class="hero-bit"></div>
+                <div class="hero-bit" data-bit="0"></div><div class="hero-bit"></div>
+                <div class="hero-bit" data-bit="0"></div><div class="hero-bit"></div>
             </div>
             <h1>PIXEL<br><span id="dynamicAccent" style="color:var(--accent)">BINÁRIO</span></h1>
-            <div class="subtitle">DECODIFICAÇÃO DE MATRIZ</div>
+            <div class="subtitle">CORE DECODER System</div>
             
             <div class="mapa-fases">
                 <div id="fase1" class="fase-btn" onclick="jogarNivel(0)">01<span>Fácil</span></div>
@@ -138,12 +183,11 @@
         </div>
     </div>
 
-    <!-- JOGO -->
     <div id="jogoTela" class="screen">
         <div class="header-jogo">
             <button class="btn-voltar" onclick="irParaHome()">← SAIR</button>
             <div style="text-align: right;">
-                <div id="statusFase" class="subtitle" style="margin:0; color:var(--accent); font-weight:bold">NÍVEL 01</div>
+                <div id="statusFase" class="subtitle" style="margin:0; color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
                 <div id="nomeObjeto" style="font-size: 1rem; font-weight: 700;">AGUARDANDO...</div>
             </div>
         </div>
