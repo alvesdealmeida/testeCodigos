@@ -10,7 +10,6 @@
             --accent: #00ff66;
             --text: #ffffff;
             --secondary: #555555;
-            --error: #ff4444;
         }
 
         body, html {
@@ -40,7 +39,48 @@
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
         .active { display: flex; }
 
-        /* HEADER */
+        /* MENU PRINCIPAL */
+        .menu-container { 
+            margin: auto; 
+            text-align: center; 
+            background: rgba(0,0,0,0.85); 
+            padding: 30px 15px; 
+            border-radius: 30px; 
+            border: 1px solid #222; 
+            width: 90%;
+            max-width: 400px;
+        }
+
+        /* ALINHAMENTO DOS BOTÕES LADO A LADO */
+        .fases-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .fase-btn { 
+            flex: 1; /* Faz todos terem o mesmo tamanho */
+            max-width: 90px;
+            height: 85px; 
+            background: #0a0a0a; 
+            border: 2px solid #222; 
+            border-radius: 20px; 
+            color: #fff; 
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .fase-btn small { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; }
+        .fase-btn.liberada { border-color: var(--accent); }
+
+        /* JOGO */
         .header-jogo {
             width: 100%;
             padding: 15px 20px;
@@ -52,7 +92,6 @@
             align-items: center;
         }
 
-        /* ÁREA DO JOGO */
         .game-content {
             flex: 1;
             display: flex;
@@ -69,8 +108,7 @@
             border-radius: 12px;
             color: var(--accent);
             font-size: 1.2rem;
-            letter-spacing: 8px;
-            line-height: 1.4;
+            letter-spacing: 6px;
             border: 1px solid #333;
             margin-bottom: 20px;
             text-align: center;
@@ -79,13 +117,12 @@
         .grid { 
             display: grid; 
             gap: 5px; 
-            padding: 12px; 
+            padding: 10px; 
             background: rgba(20, 20, 20, 0.9); 
             border-radius: 12px; 
             border: 1px solid #444;
         }
 
-        /* Células com tamanho restaurado para conforto visual */
         .cell { 
             width: 38px; height: 38px; 
             background: rgba(60, 60, 60, 0.3); 
@@ -94,7 +131,6 @@
         }
         .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); border-color: #fff; }
 
-        /* FOOTER */
         .footer-controls {
             width: 100%;
             padding: 15px 20px;
@@ -111,32 +147,22 @@
             border-radius: 12px;
             font-weight: 900;
             text-transform: uppercase;
-            font-size: 0.85rem;
             cursor: pointer;
             border: none;
         }
         .btn-compilar { background: var(--accent); color: #000; }
         .btn-limpar { background: transparent; color: #fff; border: 1px solid #444; }
 
-        /* MENU PRINCIPAL */
-        .menu-container { margin: auto; text-align: center; background: rgba(0,0,0,0.85); padding: 40px 20px; border-radius: 30px; border: 1px solid #222; width: 85%; }
-        .fase-btn { width: 85px; height: 85px; background: #0a0a0a; border: 2px solid #222; border-radius: 20px; margin: 8px; color: #fff; cursor: pointer; transition: 0.3s; }
-        .fase-btn.liberada { border-color: var(--accent); }
-        
-        /* LINK DE INJEÇÃO */
         #fileInput { display: none; }
         .upload-link {
             display: inline-block;
-            margin-top: 25px;
+            margin-top: 20px;
             color: var(--accent);
             text-decoration: underline;
             font-size: 0.85rem;
             font-weight: bold;
             cursor: pointer;
-            letter-spacing: 1px;
-            opacity: 0.8;
         }
-        .upload-link:hover { opacity: 1; }
     </style>
 </head>
 <body>
@@ -144,13 +170,12 @@
 <canvas id="matrixBg"></canvas>
 
 <div id="app-container">
-    <!-- TELA MENU -->
     <div id="telaMenu" class="screen active">
         <div class="menu-container">
-            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.4rem;">PIXEL BINÁRIO</h1>
-            <p style="color:var(--secondary); font-size:0.75rem; letter-spacing: 2px; margin-bottom: 30px;">MATRIX DECODER</p>
+            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.2rem;">PIXEL BINÁRIO</h1>
+            <p style="color:var(--secondary); font-size:0.7rem; letter-spacing: 2px;">MATRIX DECODER</p>
             
-            <div>
+            <div class="fases-wrapper">
                 <button id="fase1" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
                 <button id="fase2" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
                 <button id="fase3" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
@@ -161,21 +186,18 @@
         </div>
     </div>
 
-    <!-- TELA JOGO -->
     <div id="jogoTela" class="screen">
         <div class="header-jogo">
-            <button onclick="irParaHome()" style="background:none; border:1px solid #444; color:#888; padding:8px 15px; border-radius:8px; font-weight: bold;">SAIR</button>
+            <button onclick="irParaHome()" style="background:none; border:1px solid #444; color:#888; padding:8px 15px; border-radius:8px;">SAIR</button>
             <div style="text-align:right">
                 <div id="statusFase" style="color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
                 <div id="nomeObjeto" style="font-weight:900;">OBJETO.EXE</div>
             </div>
         </div>
-
         <div class="game-content">
             <div id="binaryDisplay" class="binary-box"></div>
             <div id="gridDisplay" class="grid"></div>
         </div>
-
         <div class="footer-controls">
             <button class="btn-game btn-limpar" onclick="limpar()">Reset</button>
             <button class="btn-game btn-compilar" onclick="validar()">Compilar</button>
@@ -239,8 +261,7 @@
                 hCtx.drawImage(img, 0, 0, size, size);
                 const pixels = hCtx.getImageData(0, 0, size, size).data;
                 mapaBinario = [];
-                let threshold = 120 + (nivelAtual * 25); 
-
+                let threshold = 135; 
                 for (let y = 0; y < size; y++) {
                     let linha = "";
                     for (let x = 0; x < size; x++) {
@@ -263,12 +284,10 @@
         document.getElementById('telaMenu').classList.remove('active');
         document.getElementById('jogoTela').classList.add('active');
         document.getElementById('binaryDisplay').innerHTML = mapaBinario.join('<br>');
-        
         const grid = document.getElementById('gridDisplay');
         grid.innerHTML = "";
         const colunas = mapaBinario[0].length;
         grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
-        
         mapaBinario.forEach(linha => {
             [...linha].forEach(bit => {
                 const cell = document.createElement('div');
@@ -288,7 +307,6 @@
             const active = c.classList.contains('active');
             if((is1 && !active) || (!is1 && active)) erro = true;
         });
-
         if(!erro) {
             alert("✓ CÓDIGO COMPILADO!");
             progresso = Math.min(nivelAtual + 1, 2);
@@ -316,7 +334,6 @@
             b.style.opacity = i <= progresso ? "1" : "0.3";
         }
     }
-
     atualizarBotoes();
 </script>
 </body>
