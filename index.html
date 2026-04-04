@@ -7,10 +7,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+            --bg-color: #0b0f19;
+            --accent-color: #00ff66;
             --panel-bg: rgba(31, 41, 55, 0.7);
-            --accent-green: #00ff66;
-            --accent-glow: rgba(0, 255, 102, 0.3);
             --text-main: #f3f4f6;
         }
 
@@ -19,7 +18,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: var(--bg-gradient);
+            background: #0b0f19;
             z-index: 9999;
             flex-direction: column;
             justify-content: center;
@@ -28,7 +27,6 @@
             padding: 30px;
         }
 
-        /* Detecta Desktop por largura e presença de mouse */
         @media screen and (min-width: 1025px) {
             #aviso-mobile-apenas { display: flex; }
             #app-container { display: none; }
@@ -37,15 +35,16 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: var(--bg-gradient);
+            background-color: var(--bg-color);
             color: var(--text-main);
             text-align: center;
             overflow-x: hidden;
             touch-action: manipulation;
+            transition: background-color 0.5s ease;
         }
 
-        .screen { display: none; padding: 15px; min-height: 100vh; box-sizing: border-box; }
-        .active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .screen { display: none; padding: 10px; min-height: 100vh; box-sizing: border-box; }
+        .active { display: flex; flex-direction: column; align-items: center; }
 
         .menu-card {
             background: var(--panel-bg);
@@ -55,9 +54,10 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 90%;
             max-width: 400px;
+            margin-top: 20vh;
         }
 
-        h1 { font-size: 1.8rem; background: linear-gradient(to right, #00ff66, #00bcff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; }
+        h1 { font-size: 1.8rem; margin: 10px 0; color: var(--accent-color); }
 
         .mapa-fases { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
 
@@ -65,14 +65,11 @@
             width: 70px; height: 70px; border-radius: 14px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1);
-            color: #4b5563; font-weight: bold; position: relative;
+            color: #4b5563; font-weight: bold;
         }
         .fase-btn span { font-size: 0.6rem; text-transform: uppercase; }
+        .fase-btn.liberada { border-color: var(--accent-color); color: var(--accent-color); }
 
-        .fase-btn.liberada { background: rgba(0, 255, 102, 0.1); border-color: var(--accent-green); color: var(--accent-green); }
-        .fase-btn.bloqueada { opacity: 0.3; filter: grayscale(1); }
-
-        /* BOTÃO UPLOAD DIMINUÍDO */
         .btn-upload {
             display: inline-flex; padding: 6px 12px;
             background: rgba(0, 188, 255, 0.1); border: 1px solid #00bcff;
@@ -80,19 +77,46 @@
             cursor: pointer; margin-top: 10px;
         }
 
-        .split-container { display: flex; width: 100%; flex-grow: 1; margin: 10px 0; flex-direction: column; }
-        .pane { padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        /* AJUSTE DOS BOTÕES PARA CIMA */
+        .split-container { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 5px; }
+        .pane { padding: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-        .binary-list { font-family: 'Courier New', monospace; color: var(--accent-green); font-size: 1.1rem; letter-spacing: 4px; line-height: 1.2; }
+        .binary-list { 
+            font-family: 'Courier New', monospace; 
+            color: var(--accent-color); 
+            font-size: 1rem; 
+            letter-spacing: 4px; 
+            line-height: 1.2;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+        }
 
         .grid { display: grid; gap: 3px; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 8px; }
-        .cell { width: 28px; height: 28px; background: #1f2937; border-radius: 3px; }
-        .cell.active { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
-        .cell.correct { background: #10b981; }
-        .cell.wrong { background: #ef4444; }
+        .cell { width: 30px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .cell.active { background: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); }
+        .cell.correct { background: #10b981 !important; }
+        .cell.wrong { background: #ef4444 !important; }
 
-        .controls { padding-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
-        .action-btn { padding: 12px 18px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem; color: white; }
+        .controls { 
+            margin-top: 15px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            width: 100%;
+            padding-bottom: 30px;
+        }
+        .action-btn { 
+            flex: 1;
+            max-width: 140px;
+            padding: 15px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            font-size: 0.9rem; 
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
         
         input[type="file"] { display: none; }
     </style>
@@ -101,7 +125,7 @@
 
 <div id="aviso-mobile-apenas">
     <h1>📱 Mobile Only</h1>
-    <p>Este sistema é exclusivo para dispositivos móveis ou tablets.</p>
+    <p>Este sistema é exclusivo para dispositivos móveis.</p>
 </div>
 
 <div id="app-container">
@@ -119,9 +143,9 @@
     </div>
 
     <div id="jogoTela" class="screen">
-        <div style="width: 100%; display: flex; justify-content: space-between; padding: 10px;">
-            <button onclick="irParaHome()" style="background:none; border:1px solid #4b5563; color:#9ca3af; border-radius:5px; padding:5px 10px;">⬅ Menu</button>
-            <div id="statusFase">Fase</div>
+        <div style="width: 100%; display: flex; justify-content: space-between; padding: 10px; box-sizing: border-box;">
+            <button onclick="irParaHome()" style="background:rgba(255,255,255,0.1); border:1px solid #4b5563; color:#fff; border-radius:5px; padding:5px 12px;">⬅ Sair</button>
+            <div id="statusFase" style="font-weight: bold;">Fase</div>
         </div>
         
         <div class="split-container">
@@ -131,7 +155,7 @@
 
         <div class="controls">
             <button class="action-btn" style="background:#10b981" onclick="validar()">COMPILAR</button>
-            <button class="action-btn" style="background:#00bcff" onclick="limpar()">LIMPAR</button>
+            <button class="action-btn" style="background:#3b82f6" onclick="limpar()">LIMPAR</button>
         </div>
     </div>
 </div>
@@ -145,38 +169,30 @@
     let mapaBinario = [];
     let progresso = parseInt(localStorage.getItem('progressoBinario')) || 0;
 
-    const bancosDeDados = [
-        { // NÍVEL 1: FÁCIL (4x4 ou 5x5)
-            tarefas: [
-                ["0110", "1001", "1001", "0110"], // Círculo
-                ["1111", "1001", "1001", "1111"], // Quadrado
-                ["010", "111", "010"],            // Cruz
-                ["101", "101", "111"],            // Copo
-                ["001", "010", "100"]             // Linha
-            ]
-        },
-        { // NÍVEL 2: MÉDIO (6x6 a 8x8)
-            tarefas: [
-                ["011110", "100001", "101101", "100001", "101101", "011110"], // Rosto
-                ["001100", "011110", "111111", "111111", "011110", "001100"], // Diamante
-                ["111111", "100001", "100001", "100001", "100001", "111111"], // Caixa
-                ["101010", "010101", "101010", "010101", "101010", "010101"]  // Xadrez
-            ]
-        },
-        { // NÍVEL 3: DIFÍCIL (10x10)
-            tarefas: [
-                ["00011000", "00111100", "01111110", "11011011", "11111111", "00100100", "01011010", "10100101"], // Alien
-                ["11111111", "10000001", "10111101", "10100101", "10100101", "10111101", "10000001", "11111111"], // Alvo
-                ["10101010", "01010101", "10101010", "01010101", "10101010", "01010101", "10101010", "01010101"], // Labirinto
-                ["00111100", "01111110", "11011011", "11111111", "11111111", "11011011", "01111110", "00111100"], // Caveira
-                ["11000011", "11000011", "00111100", "00111100", "00111100", "00111100", "11000011", "11000011"], // X
-                ["00001111", "00001111", "00001111", "00001111", "11110000", "11110000", "11110000", "11110000"]  // Degraus
-            ]
-        }
+    // Cores para variação dinâmica
+    const temas = [
+        { bg: "#0f172a", accent: "#38bdf8" }, // Azul
+        { bg: "#161b22", accent: "#00ff66" }, // Verde Matrix
+        { bg: "#1e1b4b", accent: "#a855f7" }, // Roxo
+        { bg: "#2d0a0a", accent: "#f87171" }, // Vermelho
+        { bg: "#111827", accent: "#fbbf24" }  // Âmbar
     ];
+
+    const bancosDeDados = [
+        { tarefas: [["0110", "1001", "1001", "0110"], ["1111", "1001", "1001", "1111"], ["010", "111", "010"]] },
+        { tarefas: [["011110", "100001", "101101", "100001", "101101", "011110"], ["001100", "011110", "111111", "111111", "011110", "001100"]] },
+        { tarefas: [["00011000", "00111100", "01111110", "11011011", "11111111", "00100100", "01011010", "10100101"]] }
+    ];
+
+    function mudarTema() {
+        const tema = temas[Math.floor(Math.random() * temas.length)];
+        document.documentElement.style.setProperty('--bg-color', tema.bg);
+        document.documentElement.style.setProperty('--accent-color', tema.accent);
+    }
 
     function jogarNivel(idx) {
         if (idx > progresso) return alert("Complete os níveis anteriores!");
+        mudarTema();
         const tarefasNivel = bancosDeDados[idx].tarefas;
         mapaBinario = tarefasNivel[Math.floor(Math.random() * tarefasNivel.length)];
         document.getElementById('statusFase').textContent = `Nível ${idx + 1}`;
@@ -186,11 +202,11 @@
     fileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
+        mudarTema();
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
             img.onload = () => {
-                // TAMANHO REGRADO PARA MOBILE/TABLET (10x10)
                 const size = 10;
                 helperCanvas.width = size; helperCanvas.height = size;
                 ctx.drawImage(img, 0, 0, size, size);
@@ -205,6 +221,7 @@
                     }
                     mapaBinario.push(linha);
                 }
+                document.getElementById('statusFase').textContent = "MODO LIVRE";
                 montarJogo(size);
             };
             img.src = event.target.result;
