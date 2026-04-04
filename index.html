@@ -97,25 +97,29 @@
 
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
-    /* BOTÃO EXECUTAR QUADRADO - AGORA FIXO ABAIXO DA GRADE À DIREITA */
+    /* BOTÃO EXECUTAR - AGORA UM MINI RETÂNGULO FINO */
     .btn-exec-mini {
-      width: clamp(40px, 13vw, 60px);
-      height: clamp(40px, 13vw, 60px);
-      border-radius: 12px;
+      /* Largura um pouco menor que a célula, mas altura bem reduzida (fino) */
+      width: clamp(35px, 11vw, 55px);
+      height: 25px; /* Altura fixa baixa para ser fino */
+      border-radius: 6px;
       background: var(--success-color);
       color: white;
-      font-size: 24px;
+      font-size: 16px; /* Ícone menor para caber */
       border: none;
-      box-shadow: 0 4px 0 #1A7A42;
+      /* Sombra menor para combinar com o tamanho fino */
+      box-shadow: 0 3px 0 #1A7A42;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 5px; /* Alinhamento visual com a última coluna */
+      padding: 0;
+      transition: transform 0.1s, box-shadow 0.1s;
     }
 
-    .btn-exec-mini:active { transform: translateY(2px); box-shadow: 0 2px 0 #1A7A42; }
-    .btn-exec-mini:disabled { background: #90C8A0; filter: grayscale(0.6); box-shadow: none; }
+    .btn-exec-mini:active { transform: translateY(2px); box-shadow: 0 1px 0 #1A7A42; }
+    .btn-exec-mini:disabled { background: #90C8A0; filter: grayscale(0.6); box-shadow: none; cursor: not-allowed; }
 
     /* ── BOTÕES DE COMANDO EM LINHA ── */
     .cmd-row {
@@ -182,7 +186,6 @@
       <button onclick="setRandomTarget()" style="padding: 8px 15px; border-radius: 10px; border:none; background: var(--target-color); font-family:'Fredoka One'; cursor:pointer;">🎲 Sortear</button>
     </div>
 
-    <!-- Container que agrupa a grade e o botão logo abaixo dela à direita -->
     <div class="layout-container">
       <div class="grid" id="grid"></div>
       <button class="btn-exec-mini" id="btn-exec" onclick="executeCommands()">▶</button>
