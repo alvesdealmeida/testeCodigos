@@ -51,7 +51,6 @@
             max-width: 400px;
         }
 
-        /* ALINHAMENTO DOS BOTÕES LADO A LADO */
         .fases-wrapper {
             display: flex;
             justify-content: center;
@@ -61,24 +60,33 @@
         }
 
         .fase-btn { 
-            flex: 1; /* Faz todos terem o mesmo tamanho */
+            flex: 1; 
             max-width: 90px;
             height: 85px; 
             background: #0a0a0a; 
             border: 2px solid #222; 
             border-radius: 20px; 
             color: #fff; 
-            cursor: pointer;
+            cursor: not-allowed; /* Padrão bloqueado */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
             font-weight: bold;
+            opacity: 0.3; /* Visual bloqueado */
+            transition: 0.3s;
         }
         
         .fase-btn small { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; }
-        .fase-btn.liberada { border-color: var(--accent); }
+
+        /* Estilo para quando o nível está liberado */
+        .fase-btn.liberada { 
+            border-color: var(--accent); 
+            opacity: 1; 
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
+        }
 
         /* JOGO */
         .header-jogo {
@@ -176,9 +184,9 @@
             <p style="color:var(--secondary); font-size:0.7rem; letter-spacing: 2px;">MATRIX DECODER</p>
             
             <div class="fases-wrapper">
-                <button id="fase1" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
-                <button id="fase2" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
-                <button id="fase3" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
+                <button id="fase0" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
+                <button id="fase1" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
+                <button id="fase2" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
             </div>
 
             <label for="fileInput" class="upload-link">INJETAR CÓDIGO EXTERNO</label>
@@ -208,6 +216,7 @@
 <canvas id="helperCanvas" style="display:none;"></canvas>
 
 <script>
+    /* FUNDO MATRIX */
     const mCanvas = document.getElementById('matrixBg');
     const mCtx = mCanvas.getContext('2d');
     let drops = [];
@@ -227,12 +236,20 @@
     }
     initMatrix(); setInterval(drawMatrix, 50);
 
+    /* LÓGICA DO JOGO */
     let mapaBinario = [];
     let nivelAtual = 0;
-    let progresso = parseInt(localStorage.getItem('progresso')) || 0;
+    
+    // Progresso salvo (0 = apenas nível 1 aberto, 1 = nível 2 aberto, 2 = nível 3 aberto)
+    let progresso = parseInt(localStorage.getItem('pixelProgresso')) || 0;
 
     function jogarNivel(idx) {
-        if(idx > progresso) return;
+        // CRUCIAL: Bloqueia o clique se o nível for maior que o progresso atual
+        if(idx > progresso) {
+            alert("Acesso negado. Complete o módulo anterior!");
+            return;
+        }
+
         nivelAtual = idx;
         const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
         document.documentElement.style.setProperty('--accent', temas[idx]);
@@ -248,37 +265,6 @@
         document.getElementById('nomeObjeto').textContent = dados[idx].n;
         montarJogo();
     }
-
-    document.getElementById('fileInput').onchange = function(e) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                const hCanvas = document.getElementById('helperCanvas');
-                const hCtx = hCanvas.getContext('2d');
-                const size = [4, 6, 8][nivelAtual];
-                hCanvas.width = size; hCanvas.height = size;
-                hCtx.drawImage(img, 0, 0, size, size);
-                const pixels = hCtx.getImageData(0, 0, size, size).data;
-                mapaBinario = [];
-                let threshold = 135; 
-                for (let y = 0; y < size; y++) {
-                    let linha = "";
-                    for (let x = 0; x < size; x++) {
-                        const i = (y * size + x) * 4;
-                        const avg = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-                        linha += (avg < threshold) ? "1" : "0";
-                    }
-                    mapaBinario.push(linha);
-                }
-                document.getElementById('nomeObjeto').textContent = "UPLOAD.SYS";
-                montarJogo();
-                e.target.value = ""; 
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
 
     function montarJogo() {
         document.getElementById('telaMenu').classList.remove('active');
@@ -307,10 +293,16 @@
             const active = c.classList.contains('active');
             if((is1 && !active) || (!is1 && active)) erro = true;
         });
+
         if(!erro) {
             alert("✓ CÓDIGO COMPILADO!");
-            progresso = Math.min(nivelAtual + 1, 2);
-            localStorage.setItem('progresso', progresso);
+            
+            // Se o nível que eu acabei de fazer for igual ao meu progresso, libero o próximo
+            if(nivelAtual === progresso) {
+                progresso++;
+                localStorage.setItem('pixelProgresso', progresso);
+            }
+            
             irParaHome();
         } else {
             alert("× ERRO NA SEQUÊNCIA!");
@@ -320,21 +312,57 @@
     function irParaHome() {
         document.getElementById('jogoTela').classList.remove('active');
         document.getElementById('telaMenu').classList.add('active');
-        atualizarBotoes();
+        atualizarBotoesMenu();
     }
+
+    function atualizarBotoesMenu() {
+        for(let i=0; i<3; i++) {
+            const b = document.getElementById(`fase${i}`);
+            if(i <= progresso) {
+                b.classList.add('liberada');
+            } else {
+                b.classList.remove('liberada');
+            }
+        }
+    }
+
+    // Processamento de imagem externa (mantém a lógica anterior)
+    document.getElementById('fileInput').onchange = function(e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const hCanvas = document.getElementById('helperCanvas');
+                const hCtx = hCanvas.getContext('2d');
+                const size = [4, 6, 8][nivelAtual];
+                hCanvas.width = size; hCanvas.height = size;
+                hCtx.drawImage(img, 0, 0, size, size);
+                const pixels = hCtx.getImageData(0, 0, size, size).data;
+                mapaBinario = [];
+                for (let y = 0; y < size; y++) {
+                    let linha = "";
+                    for (let x = 0; x < size; x++) {
+                        const i = (y * size + x) * 4;
+                        const avg = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
+                        linha += (avg < 135) ? "1" : "0";
+                    }
+                    mapaBinario.push(linha);
+                }
+                document.getElementById('nomeObjeto').textContent = "UPLOAD.SYS";
+                montarJogo();
+                e.target.value = ""; 
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
     function limpar() {
         document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
     }
 
-    function atualizarBotoes() {
-        for(let i=0; i<3; i++) {
-            const b = document.getElementById(`fase${i+1}`);
-            b.className = `fase-btn ${i <= progresso ? 'liberada' : ''}`;
-            b.style.opacity = i <= progresso ? "1" : "0.3";
-        }
-    }
-    atualizarBotoes();
+    // Inicializa o menu com os níveis certos abertos
+    atualizarBotoesMenu();
 </script>
 </body>
 </html>
