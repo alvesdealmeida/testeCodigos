@@ -45,12 +45,11 @@
             width: 100%;
             padding: 15px 20px;
             box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.9);
             border-bottom: 1px solid #222;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
         }
 
         /* CONTEÚDO CENTRAL */
@@ -61,7 +60,6 @@
             align-items: center;
             justify-content: center;
             padding: 10px;
-            overflow: hidden;
         }
 
         .binary-box {
@@ -70,29 +68,28 @@
             padding: 15px;
             border-radius: 12px;
             color: var(--accent);
-            font-size: 1.1rem;
-            letter-spacing: 10px; /* Mais espaço entre números */
-            line-height: 1.5;
+            font-size: 1.2rem; /* Tamanho de volta ao normal */
+            letter-spacing: 8px;
+            line-height: 1.4;
             border: 1px solid #333;
             margin-bottom: 20px;
             text-align: center;
-            width: auto;
-            max-width: 90%;
         }
 
         .grid { 
             display: grid; 
-            gap: 5px; 
-            padding: 12px; 
+            gap: 4px; 
+            padding: 10px; 
             background: rgba(20, 20, 20, 0.9); 
-            border-radius: 15px; 
+            border-radius: 12px; 
             border: 1px solid #444;
         }
+        /* Células com tamanho de volta ao que era (confortável) */
         .cell { 
+            width: 38px; height: 38px; 
             background: rgba(60, 60, 60, 0.3); 
             border-radius: 4px; 
             border: 1px solid #555;
-            transition: 0.1s;
         }
         .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); border-color: #fff; }
 
@@ -122,9 +119,21 @@
 
         /* MENU */
         .menu-container { margin: auto; text-align: center; background: rgba(0,0,0,0.85); padding: 40px 20px; border-radius: 30px; border: 1px solid #222; width: 85%; }
-        .fase-btn { width: 85px; height: 85px; background: #0a0a0a; border: 2px solid #222; border-radius: 20px; margin: 8px; color: #fff; cursor: pointer; transition: 0.3s; }
-        .fase-btn.liberada { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 255, 102, 0.2); }
-        .fase-btn small { opacity: 0.5; font-size: 0.6rem; text-transform: uppercase; }
+        .fase-btn { width: 85px; height: 85px; background: #0a0a0a; border: 2px solid #222; border-radius: 20px; margin: 8px; color: #fff; cursor: pointer; }
+        .fase-btn.liberada { border-color: var(--accent); }
+        
+        /* LINK DE CARREGAMENTO */
+        #fileInput { display: none; }
+        .upload-link {
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-decoration: underline;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -132,32 +141,30 @@
 <canvas id="matrixBg"></canvas>
 
 <div id="app-container">
-    <!-- TELA MENU -->
     <div id="telaMenu" class="screen active">
         <div class="menu-container">
-            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.5rem;">PIXEL<br>BINÁRIO</h1>
+            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.4rem;">PIXEL BINÁRIO</h1>
             <p style="color:var(--secondary); font-size:0.75rem; letter-spacing: 2px; margin-bottom: 30px;">MATRIX DECODER</p>
             
-            <div style="margin-bottom: 30px;">
+            <div>
                 <button id="fase1" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
                 <button id="fase2" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
                 <button id="fase3" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
             </div>
 
-            <label id="fileLabel" for="fileInput" style="color:var(--accent); cursor:pointer; font-size:0.85rem; font-weight: bold; text-decoration: underline;">
+            <label for="fileInput" class="upload-link">
                 [ INJETAR CÓDIGO EXTERNO ]
             </label>
             <input type="file" id="fileInput" accept="image/*">
         </div>
     </div>
 
-    <!-- TELA JOGO -->
     <div id="jogoTela" class="screen">
         <div class="header-jogo">
             <button onclick="irParaHome()" style="background:none; border:1px solid #444; color:#888; padding:8px 15px; border-radius:8px; font-weight: bold;">SAIR</button>
             <div style="text-align:right">
-                <div id="statusFase" style="color:var(--accent); font-weight:bold; font-size:0.7rem; letter-spacing: 1px;">MÓDULO 01</div>
-                <div id="nomeObjeto" style="font-weight:900; font-size: 1.1rem;">OBJETO.EXE</div>
+                <div id="statusFase" style="color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
+                <div id="nomeObjeto" style="font-weight:900;">OBJETO.EXE</div>
             </div>
         </div>
 
@@ -176,7 +183,6 @@
 <canvas id="helperCanvas" style="display:none;"></canvas>
 
 <script>
-    /* FUNDO MATRIX */
     const mCanvas = document.getElementById('matrixBg');
     const mCtx = mCanvas.getContext('2d');
     let drops = [];
@@ -196,7 +202,6 @@
     }
     initMatrix(); setInterval(drawMatrix, 50);
 
-    /* LÓGICA DO JOGO */
     let mapaBinario = [];
     let nivelAtual = 0;
     let progresso = parseInt(localStorage.getItem('progresso')) || 0;
@@ -219,7 +224,6 @@
         montarJogo();
     }
 
-    // CARREGAR FOTO COM DIFICULDADE
     document.getElementById('fileInput').onchange = function(e) {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -227,16 +231,11 @@
             img.onload = function() {
                 const hCanvas = document.getElementById('helperCanvas');
                 const hCtx = hCanvas.getContext('2d');
-                
-                // Tamanho baseado no nível atual (4, 6 ou 8)
                 const size = [4, 6, 8][nivelAtual];
                 hCanvas.width = size; hCanvas.height = size;
-                
                 hCtx.drawImage(img, 0, 0, size, size);
                 const pixels = hCtx.getImageData(0, 0, size, size).data;
                 mapaBinario = [];
-
-                // Dificuldade: Nível 3 exige pixels muito mais claros para virar "1"
                 let threshold = 120 + (nivelAtual * 25); 
 
                 for (let y = 0; y < size; y++) {
@@ -250,7 +249,6 @@
                 }
                 document.getElementById('nomeObjeto').textContent = "UPLOAD.SYS";
                 montarJogo();
-                // Reseta o input para o texto original aparecer no menu depois
                 e.target.value = ""; 
             };
             img.src = event.target.result;
@@ -261,7 +259,6 @@
     function montarJogo() {
         document.getElementById('telaMenu').classList.remove('active');
         document.getElementById('jogoTela').classList.add('active');
-        
         document.getElementById('binaryDisplay').innerHTML = mapaBinario.join('<br>');
         
         const grid = document.getElementById('gridDisplay');
@@ -269,8 +266,8 @@
         const colunas = mapaBinario[0].length;
         grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
         
-        // Células maiores no nível 1, menores no 3 para caber tudo
-        const cellSize = colunas === 4 ? "55px" : (colunas === 6 ? "42px" : "34px");
+        // Células com tamanho de volta ao padrão
+        const cellSize = "38px";
 
         mapaBinario.forEach(linha => {
             [...linha].forEach(bit => {
@@ -300,7 +297,7 @@
             localStorage.setItem('progresso', progresso);
             irParaHome();
         } else {
-            alert("× ERRO NA SEQUÊNCIA BINÁRIA!");
+            alert("× ERRO NA SEQUÊNCIA!");
         }
     }
 
@@ -317,7 +314,6 @@
     function atualizarBotoes() {
         for(let i=0; i<3; i++) {
             const b = document.getElementById(`fase${i+1}`);
-            b.className = `fase-btn ${i <= progresso ? 'liberada' : ''}`;
             b.style.opacity = i <= progresso ? "1" : "0.3";
         }
     }
