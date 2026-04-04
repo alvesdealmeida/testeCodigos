@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pixel Binário: Missão Programação</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -12,7 +12,6 @@
             --accent-green: #00ff66;
             --accent-glow: rgba(0, 255, 102, 0.3);
             --text-main: #f3f4f6;
-            --locked: #374151;
         }
 
         /* RESTRIÇÃO DESKTOP */
@@ -29,33 +28,20 @@
             padding: 30px;
         }
 
-        @media screen and (min-width: 1025px) and (pointer: fine) {
+        /* Detecta Desktop por largura e presença de mouse */
+        @media screen and (min-width: 1025px) {
             #aviso-mobile-apenas { display: flex; }
-            body { overflow: hidden; }
+            #app-container { display: none; }
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: var(--bg-gradient);
-            background-attachment: fixed;
             color: var(--text-main);
             text-align: center;
             overflow-x: hidden;
-        }
-
-        body::before {
-            content: "0101 1100 0011 1010 0110 0001\n1010 0011 1100 0110 1010 1111\n0011 1010 0110 1100 0011 1010";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: rgba(0, 255, 102, 0.03);
-            white-space: pre;
-            pointer-events: none;
-            z-index: -1;
-            text-align: left;
-            padding: 20px;
+            touch-action: manipulation;
         }
 
         .screen { display: none; padding: 15px; min-height: 100vh; box-sizing: border-box; }
@@ -64,197 +50,89 @@
         .menu-card {
             background: var(--panel-bg);
             backdrop-filter: blur(10px);
-            padding: 30px 20px;
+            padding: 25px 15px;
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
             width: 90%;
+            max-width: 400px;
         }
 
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 5px;
-            background: linear-gradient(to right, #00ff66, #00bcff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        h1 { font-size: 1.8rem; background: linear-gradient(to right, #00ff66, #00bcff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; }
 
-        .mapa-fases {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 20px 0;
-        }
+        .mapa-fases { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
 
         .fase-btn {
-            width: 65px; height: 65px;
-            border-radius: 14px;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1rem;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            color: #4b5563;
-            position: relative;
+            width: 70px; height: 70px; border-radius: 14px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #4b5563; font-weight: bold; position: relative;
         }
-        .fase-btn span { font-size: 0.55rem; text-transform: uppercase; margin-top: 2px; }
+        .fase-btn span { font-size: 0.6rem; text-transform: uppercase; }
 
-        /* ESTADO LIBERADO */
-        .fase-btn.liberada {
-            background: rgba(0, 255, 102, 0.1);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-            opacity: 1;
-            cursor: pointer;
-            pointer-events: auto !important;
-        }
+        .fase-btn.liberada { background: rgba(0, 255, 102, 0.1); border-color: var(--accent-green); color: var(--accent-green); }
+        .fase-btn.bloqueada { opacity: 0.3; filter: grayscale(1); }
 
-        /* ESTADO BLOQUEADO */
-        .fase-btn.bloqueada {
-            opacity: 0.3;
-            filter: grayscale(1);
-            cursor: not-allowed !important;
-            pointer-events: none !important;
-        }
-
-        .fase-btn.bloqueada::after {
-            content: "🔒";
-            position: absolute;
-            top: -5px; right: -5px;
-            font-size: 12px;
-        }
-
+        /* BOTÃO UPLOAD DIMINUÍDO */
         .btn-upload {
-            display: inline-flex; 
-            align-items: center;
-            justify-content: center;
-            width: auto;
-            min-width: 80px;
-            padding: 8px 16px;
-            margin: 10px auto;
-            background: rgba(0, 188, 255, 0.1);
-            border: 1px solid #00bcff; color: #00bcff;
-            border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer;
+            display: inline-flex; padding: 6px 12px;
+            background: rgba(0, 188, 255, 0.1); border: 1px solid #00bcff;
+            color: #00bcff; border-radius: 6px; font-size: 0.75rem; font-weight: bold;
+            cursor: pointer; margin-top: 10px;
         }
 
-        .game-header { 
-            width: 100%; display: flex; justify-content: space-between; 
-            align-items: center; padding: 10px 15px; box-sizing: border-box; 
-        }
+        .split-container { display: flex; width: 100%; flex-grow: 1; margin: 10px 0; flex-direction: column; }
+        .pane { padding: 10px; display: flex; flex-direction: column; align-items: center; }
 
-        .btn-menu-small { padding: 6px 12px !important; font-size: 0.75rem !important; }
-
-        .badge-teste {
-            background-color: #f59e0b;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        #statusFase { font-size: 0.9rem; font-weight: bold; color: #00bcff; }
-        .modo-text { font-size: 11px !important; color: #6b7280; }
-
-        .split-container {
-            display: flex; width: 100%; flex-grow: 1;
-            margin: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
-
-        .binary-list {
-            font-family: 'Courier New', monospace;
-            color: var(--accent-green);
-            font-size: clamp(0.9rem, 1.8vw, 1.4rem);
-            letter-spacing: 3px;
-        }
+        .binary-list { font-family: 'Courier New', monospace; color: var(--accent-green); font-size: 1.1rem; letter-spacing: 4px; line-height: 1.2; }
 
         .grid { display: grid; gap: 3px; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 8px; }
-        .cell {
-            width: clamp(18px, 4vw, 30px);
-            height: clamp(18px, 4vw, 30px);
-            background: #1f2937;
-            border-radius: 3px;
-        }
+        .cell { width: 28px; height: 28px; background: #1f2937; border-radius: 3px; }
         .cell.active { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
         .cell.correct { background: #10b981; }
         .cell.wrong { background: #ef4444; }
 
-        .controls { padding-bottom: 20px; }
-        button.action-btn {
-            padding: 10px 16px; border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; font-size: 0.8rem;
-            margin: 3px; transition: 0.2s;
-            display: inline-flex; align-items: center; gap: 5px;
-        }
-        .btn-success { background: #10b981; color: white; }
-        .btn-primary { background: #00bcff; color: white; }
-        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #9ca3af; }
-
+        .controls { padding-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+        .action-btn { padding: 12px 18px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem; color: white; }
+        
         input[type="file"] { display: none; }
-
-        @media (max-width: 768px) {
-            .split-container { flex-direction: column; }
-            .pane { padding: 15px 5px; }
-        }
     </style>
 </head>
 <body>
 
 <div id="aviso-mobile-apenas">
-    <h1>📱 Acesso Restrito</h1>
-    <p>Este simulador foi projetado exclusivamente para <b>dispositivos móveis</b>.</p>
+    <h1>📱 Mobile Only</h1>
+    <p>Este sistema é exclusivo para dispositivos móveis ou tablets.</p>
 </div>
 
-<div id="telaMenu" class="screen active">
-    <div class="menu-card">
-        <h1>Pixel Binário</h1>
-        <p style="font-size: 0.85rem; color: #9ca3af;">Lógica de Programação Visual</p>
-        
-        <div class="mapa-fases">
-            <div id="fase1" class="fase-btn">1<span>Fácil</span></div>
-            <div id="fase2" class="fase-btn">2<span>Médio</span></div>
-            <div id="fase3" class="fase-btn">3<span>Difícil</span></div>
+<div id="app-container">
+    <div id="telaMenu" class="screen active">
+        <div class="menu-card">
+            <h1>Pixel Binário</h1>
+            <div class="mapa-fases">
+                <div id="fase1" class="fase-btn" onclick="jogarNivel(0)">1<span>Fácil</span></div>
+                <div id="fase2" class="fase-btn" onclick="jogarNivel(1)">2<span>Médio</span></div>
+                <div id="fase3" class="fase-btn" onclick="jogarNivel(2)">3<span>Difícil</span></div>
+            </div>
+            <label for="fileInput" class="btn-upload">📁 MODO LIVRE</label>
+            <input type="file" id="fileInput" accept="image/*">
         </div>
-
-        <div style="display: flex; justify-content: center;">
-            <label for="fileInput" class="btn-upload">📁 MODO LIVRE (IMG)</label>
-        </div>
-        <input type="file" id="fileInput" accept="image/*">
     </div>
-</div>
 
-<div id="jogoTela" class="screen">
-    <div class="game-header">
-        <button class="action-btn btn-ghost btn-menu-small" onclick="irParaHome()">⬅ Menu</button>
-        <div style="display: flex; flex-direction: column; align-items: center;">
-            <span class="badge-teste">Dev Mode</span>
-        </div>
-        <div style="text-align: right;">
+    <div id="jogoTela" class="screen">
+        <div style="width: 100%; display: flex; justify-content: space-between; padding: 10px;">
+            <button onclick="irParaHome()" style="background:none; border:1px solid #4b5563; color:#9ca3af; border-radius:5px; padding:5px 10px;">⬅ Menu</button>
             <div id="statusFase">Fase</div>
-            <div class="modo-text">Binário ➔ Pixel</div>
         </div>
-    </div>
-    
-    <div class="split-container" id="captureTarget">
-        <div class="pane left-pane">
-            <span style="color: #4b5563; margin-bottom: 10px; font-size: 9px; font-weight: bold; letter-spacing: 1px;">ALGORITMO</span>
-            <div id="binaryDisplay" class="binary-list"></div>
+        
+        <div class="split-container">
+            <div class="pane"><div id="binaryDisplay" class="binary-list"></div></div>
+            <div class="pane"><div id="gridDisplay" class="grid"></div></div>
         </div>
-        <div class="pane right-pane">
-            <span style="color: #4b5563; margin-bottom: 10px; font-size: 9px; font-weight: bold; letter-spacing: 1px;">COMPILADOR</span>
-            <div id="gridDisplay" class="grid"></div>
-        </div>
-    </div>
 
-    <div class="controls">
-        <button class="action-btn btn-success" onclick="validar()">⚙️ COMPILAR</button>
-        <button class="action-btn btn-primary" onclick="baixarDesafio()">📥 PNG</button>
-        <button class="action-btn btn-ghost" onclick="limpar()">🧹 RESET</button>
+        <div class="controls">
+            <button class="action-btn" style="background:#10b981" onclick="validar()">COMPILAR</button>
+            <button class="action-btn" style="background:#00bcff" onclick="limpar()">LIMPAR</button>
+        </div>
     </div>
 </div>
 
@@ -265,59 +143,79 @@
     const helperCanvas = document.getElementById('helperCanvas');
     const ctx = helperCanvas.getContext('2d');
     let mapaBinario = [];
-    let faseAtualIndex = 0;
-    
-    const desafiosDoSistema = [
-        { nome: "Fase 1: Geometria", dados: ["011110","100001","100001","100001","100001","011110"] },
-        { nome: "Fase 2: O Alien", dados: ["0001111000","0011111100","0111111110","1111111111","1100110011","1100110011","1111111111","0110000110","0011111100","0001111000"] },
-        { nome: "Fase 3: Labirinto", dados: ["111111111111","100000000001","101111111101","101000000101","101011110101","101010010101","101010010101","101011110101","101000000101","101111111101","100000000001","111111111111"] }
+    let progresso = parseInt(localStorage.getItem('progressoBinario')) || 0;
+
+    const bancosDeDados = [
+        { // NÍVEL 1: FÁCIL (4x4 ou 5x5)
+            tarefas: [
+                ["0110", "1001", "1001", "0110"], // Círculo
+                ["1111", "1001", "1001", "1111"], // Quadrado
+                ["010", "111", "010"],            // Cruz
+                ["101", "101", "111"],            // Copo
+                ["001", "010", "100"]             // Linha
+            ]
+        },
+        { // NÍVEL 2: MÉDIO (6x6 a 8x8)
+            tarefas: [
+                ["011110", "100001", "101101", "100001", "101101", "011110"], // Rosto
+                ["001100", "011110", "111111", "111111", "011110", "001100"], // Diamante
+                ["111111", "100001", "100001", "100001", "100001", "111111"], // Caixa
+                ["101010", "010101", "101010", "010101", "101010", "010101"]  // Xadrez
+            ]
+        },
+        { // NÍVEL 3: DIFÍCIL (10x10)
+            tarefas: [
+                ["00011000", "00111100", "01111110", "11011011", "11111111", "00100100", "01011010", "10100101"], // Alien
+                ["11111111", "10000001", "10111101", "10100101", "10100101", "10111101", "10000001", "11111111"], // Alvo
+                ["10101010", "01010101", "10101010", "01010101", "10101010", "01010101", "10101010", "01010101"], // Labirinto
+                ["00111100", "01111110", "11011011", "11111111", "11111111", "11011011", "01111110", "00111100"], // Caveira
+                ["11000011", "11000011", "00111100", "00111100", "00111100", "00111100", "11000011", "11000011"], // X
+                ["00001111", "00001111", "00001111", "00001111", "11110000", "11110000", "11110000", "11110000"]  // Degraus
+            ]
+        }
     ];
 
-    function atualizarMapaVisual() {
-        // Se for a primeira vez, define progresso como 0 (apenas fase 1 aberta)
-        if (localStorage.getItem('progressoBinario') === null) {
-            localStorage.setItem('progressoBinario', '0');
-        }
-
-        let faseDesbloqueada = parseInt(localStorage.getItem('progressoBinario'));
-
-        for (let i = 0; i < 3; i++) {
-            const btn = document.getElementById(`fase${i+1}`);
-            
-            // Remove clique anterior para evitar bugs
-            btn.onclick = null;
-
-            if (i <= faseDesbloqueada) {
-                btn.classList.remove('bloqueada');
-                btn.classList.add('liberada');
-                // Atribui o evento de clique via JS para controle total
-                btn.onclick = (function(index) {
-                    return function() { jogarFase(index); };
-                })(i);
-            } else {
-                btn.classList.remove('liberada');
-                btn.classList.add('bloqueada');
-                // Bloqueia clique
-                btn.onclick = function(e) { 
-                    e.preventDefault(); 
-                    return false; 
-                };
-            }
-        }
-    }
-
-    function jogarFase(idx) {
-        faseAtualIndex = idx;
-        mapaBinario = desafiosDoSistema[idx].dados;
-        document.getElementById('statusFase').textContent = desafiosDoSistema[idx].nome;
+    function jogarNivel(idx) {
+        if (idx > progresso) return alert("Complete os níveis anteriores!");
+        const tarefasNivel = bancosDeDados[idx].tarefas;
+        mapaBinario = tarefasNivel[Math.floor(Math.random() * tarefasNivel.length)];
+        document.getElementById('statusFase').textContent = `Nível ${idx + 1}`;
         montarJogo(mapaBinario[0].length);
     }
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                // TAMANHO REGRADO PARA MOBILE/TABLET (10x10)
+                const size = 10;
+                helperCanvas.width = size; helperCanvas.height = size;
+                ctx.drawImage(img, 0, 0, size, size);
+                const data = ctx.getImageData(0, 0, size, size).data;
+                mapaBinario = [];
+                for (let y = 0; y < size; y++) {
+                    let linha = "";
+                    for (let x = 0; x < size; x++) {
+                        const i = (y * size + x) * 4;
+                        const lum = (data[i] + data[i+1] + data[i+2]) / 3;
+                        linha += (lum < 128 && data[i+3] > 50) ? "1" : "0";
+                    }
+                    mapaBinario.push(linha);
+                }
+                montarJogo(size);
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
 
     function montarJogo(colunas) {
         document.getElementById('telaMenu').classList.remove('active');
         document.getElementById('jogoTela').classList.add('active');
-        const binariosFormatados = mapaBinario.map(linha => [...linha].join(" ")).join('<br>');
-        document.getElementById('binaryDisplay').innerHTML = binariosFormatados;
+        document.getElementById('binaryDisplay').innerHTML = mapaBinario.join('<br>');
         const grid = document.getElementById('gridDisplay');
         grid.innerHTML = "";
         grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
@@ -327,10 +225,7 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.bit = bit;
-                cell.onclick = () => { 
-                    cell.classList.toggle('active'); 
-                    cell.classList.remove('correct', 'wrong'); 
-                };
+                cell.onclick = () => cell.classList.toggle('active');
                 grid.appendChild(cell);
             });
         });
@@ -348,45 +243,33 @@
         });
 
         if (!erro) {
-            setTimeout(() => {
-                alert("🎉 Algoritmo Compilado com Sucesso!");
-                
-                let progressoAtual = parseInt(localStorage.getItem('progressoBinario')) || 0;
-                // Só desbloqueia a próxima se for a fase atual que ele está tentando abrir
-                if (faseAtualIndex === progressoAtual) {
-                    let novoProgresso = faseAtualIndex + 1;
-                    if (novoProgresso > 2) novoProgresso = 2; 
-                    localStorage.setItem('progressoBinario', novoProgresso.toString());
-                }
-                irParaHome();
-            }, 300);
-        } else { 
-            alert("❌ Erro de Sintaxe! Verifique os pixels ativos."); 
+            alert("🎉 SUCESSO!");
+            progresso = Math.min(progresso + 1, 2);
+            localStorage.setItem('progressoBinario', progresso);
+            irParaHome();
+        } else {
+            alert("❌ ERRO NA COMPILAÇÃO!");
         }
     }
 
     function irParaHome() {
         document.getElementById('jogoTela').classList.remove('active');
         document.getElementById('telaMenu').classList.add('active');
-        fileInput.value = ""; 
-        atualizarMapaVisual();
+        atualizarBotoes();
     }
 
-    function limpar() { 
-        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active', 'correct', 'wrong')); 
+    function limpar() {
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active', 'correct', 'wrong'));
     }
 
-    function baixarDesafio() {
-        const target = document.getElementById('captureTarget');
-        html2canvas(target, { backgroundColor: '#0b0f19' }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'meu-codigo-pixel.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        });
+    function atualizarBotoes() {
+        for (let i = 0; i < 3; i++) {
+            const btn = document.getElementById(`fase${i+1}`);
+            btn.className = `fase-btn ${i <= progresso ? 'liberada' : 'bloqueada'}`;
+        }
     }
 
-    window.onload = atualizarMapaVisual;
+    atualizarBotoes();
 </script>
 </body>
 </html>
