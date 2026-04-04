@@ -3,160 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pixel Binário</title>
+    <title>Pixel Binário | Pro Edition</title>
     <style>
         :root {
             --bg: #000000;
-            --card: #111111;
+            --card: #0a0a0a;
             --accent: #00ff66;
             --text: #ffffff;
-            --secondary: #888888;
+            --secondary: #444444;
             --error: #ff4444;
         }
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
-            touch-action: manipulation;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* MENU INICIAL */
-        .screen { display: none; width: 100%; height: 100vh; padding: 20px; box-sizing: border-box; }
-        .active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* ILUSTRAÇÃO BINÁRIA CSS */
+        .binary-hero {
+            width: 120px;
+            height: 60px;
+            margin: 0 auto 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            opacity: 0.5;
+        }
+        .hero-bit {
+            width: 20px; height: 20px; border: 1px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: var(--accent); border-radius: 4px;
+        }
 
-        .menu-container { text-align: center; max-width: 400px; }
-        h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        /* TELAS */
+        .screen { display: none; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
+        .active { display: flex; flex-direction: column; align-items: center; }
+
+        /* MENU */
+        .menu-container { text-align: center; margin-top: 10vh; }
+        h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; margin: 0; line-height: 1; }
+        .subtitle { color: var(--secondary); font-size: 0.9rem; margin-top: 10px; letter-spacing: 1px; }
         
-        .mapa-fases { display: flex; gap: 15px; margin: 30px 0; }
+        .mapa-fases { display: flex; gap: 12px; margin: 40px 0; justify-content: center; }
         .fase-btn {
-            width: 80px; height: 80px; border-radius: 16px;
-            background: var(--card); border: 1px solid #222;
+            width: 90px; height: 90px; border-radius: 20px;
+            background: var(--card); border: 1px solid #1a1a1a;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .fase-btn span { font-size: 0.65rem; color: var(--secondary); margin-top: 4px; }
-        .fase-btn.liberada { border-color: var(--accent); color: var(--accent); }
-        .fase-btn.bloqueada { opacity: 0.3; }
+        .fase-btn.liberada { border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 255, 102, 0.1); }
+        .fase-btn.liberada:hover { transform: translateY(-5px); background: #0f0f0f; }
+        .fase-btn span { font-size: 0.6rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; opacity: 0.6; }
+        .fase-btn.bloqueada { opacity: 0.2; cursor: not-allowed; }
 
-        /* TELA DE JOGO */
+        /* HEADER JOGO */
         .header-jogo {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            max-width: 500px;
+            width: 100%; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #111;
         }
-        .btn-voltar { 
-            background: none; border: 1px solid #333; color: var(--text); 
-            padding: 8px 16px; border-radius: 8px; font-size: 0.8rem;
-        }
-        .info-missao { text-align: right; }
-        .nivel-tag { font-size: 0.7rem; font-weight: bold; color: var(--accent); text-transform: uppercase; }
-        .objeto-nome { font-size: 0.9rem; font-weight: 500; }
-
-        /* AREA DO JOGO */
-        .game-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-            flex-grow: 1;
+        .btn-voltar {
+            background: none; border: 1px solid #222; color: #888;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.75rem;
         }
 
+        /* GRID E DISPLAY */
         .binary-box {
-            font-family: "SF Mono", "Courier New", monospace;
-            background: #0a0a0a;
-            padding: 15px;
-            border-radius: 12px;
-            color: var(--accent);
-            font-size: 1rem;
-            line-height: 1.3;
-            letter-spacing: 4px;
-            border: 1px solid #1a1a1a;
+            font-family: 'Courier New', monospace;
+            background: #050505; padding: 20px; border-radius: 15px;
+            color: var(--accent); font-size: 1.1rem; letter-spacing: 6px;
+            border: 1px solid #111; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,1);
         }
 
-        .grid { 
-            display: grid; 
-            gap: 4px; 
-            padding: 10px;
-            background: #0a0a0a;
-            border-radius: 14px;
-            border: 1px solid #1a1a1a;
-        }
-        .cell { 
-            width: 32px; height: 32px; 
-            background: #1a1a1a; 
-            border-radius: 4px; 
-            transition: background 0.1s;
-        }
-        .cell.active { background: var(--accent); }
-        .cell.correct { background: var(--accent); opacity: 0.6; }
-        .cell.wrong { background: var(--error); }
+        .grid { display: grid; gap: 5px; padding: 12px; background: #080808; border-radius: 12px; border: 1px solid #151515; }
+        .cell { width: 34px; height: 34px; background: #151515; border-radius: 5px; cursor: pointer; }
+        .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .cell.correct { background: var(--accent); opacity: 0.5; }
+        .cell.wrong { background: var(--error); box-shadow: 0 0 15px var(--error); }
 
-        /* CONTROLES ABAIXADOS MAS VISÍVEIS */
+        /* CONTROLES ESTILO PROFISSIONAL */
         .controls {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-            max-width: 350px;
-            margin: 20px 0 40px 0;
+            display: flex; gap: 15px; width: 100%; margin-top: 30px;
         }
-        .btn-main {
-            flex: 2;
-            padding: 18px;
-            border-radius: 14px;
-            border: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            background: var(--text);
-            color: var(--bg);
-            transition: opacity 0.2s;
+        .btn-game {
+            padding: 18px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: 0.2s;
+            flex: 1; outline: none;
         }
-        .btn-sec {
-            flex: 1;
-            padding: 18px;
-            border-radius: 14px;
-            background: #1a1a1a;
-            color: var(--text);
-            border: 1px solid #333;
-            font-weight: 600;
+        .btn-compilar {
+            background: var(--accent); color: #000; border: none;
+            box-shadow: 0 4px 0 #008833;
         }
-        .btn-main:active, .btn-sec:active { opacity: 0.7; }
+        .btn-compilar:active { transform: translateY(3px); box-shadow: 0 1px 0 #008833; }
+        
+        .btn-limpar {
+            background: transparent; color: #fff; border: 1px solid #333;
+        }
+        .btn-limpar:hover { background: #111; border-color: #555; }
 
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-<div id="aviso-mobile-apenas">
-    <h1>Acesso Mobile</h1>
-    <p>Por favor, abra este link no seu smartphone.</p>
-</div>
-
 <div id="app-container" style="width: 100%;">
     <!-- MENU -->
     <div id="telaMenu" class="screen active">
         <div class="menu-container">
-            <h1>Pixel<br><span style="color:var(--accent)">Binário</span></h1>
-            <p style="color:var(--secondary)">Transforme código em arte digital.</p>
+            <div class="binary-hero">
+                <div class="hero-bit">1</div><div class="hero-bit" style="opacity:0.3">0</div>
+                <div class="hero-bit">1</div><div class="hero-bit">1</div>
+                <div class="hero-bit" style="opacity:0.3">0</div><div class="hero-bit">1</div>
+                <div class="hero-bit">0</div><div class="hero-bit">1</div>
+            </div>
+            <h1>PIXEL<br><span id="dynamicAccent" style="color:var(--accent)">BINÁRIO</span></h1>
+            <div class="subtitle">DECODIFICAÇÃO DE MATRIZ</div>
             
             <div class="mapa-fases">
-                <div id="fase1" class="fase-btn" onclick="jogarNivel(0)">1<span>Fácil</span></div>
-                <div id="fase2" class="fase-btn" onclick="jogarNivel(1)">2<span>Médio</span></div>
-                <div id="fase3" class="fase-btn" onclick="jogarNivel(2)">3<span>Difícil</span></div>
+                <div id="fase1" class="fase-btn" onclick="jogarNivel(0)">01<span>Fácil</span></div>
+                <div id="fase2" class="fase-btn" onclick="jogarNivel(1)">02<span>Médio</span></div>
+                <div id="fase3" class="fase-btn" onclick="jogarNivel(2)">03<span>Hard</span></div>
             </div>
 
-            <label for="fileInput" style="color:var(--accent); font-size: 0.8rem; cursor:pointer; font-weight:600">
-                + CARREGAR IMAGEM PRÓPRIA
+            <label for="fileInput" style="color:var(--accent); font-size: 0.75rem; cursor:pointer; font-weight:700; letter-spacing: 1px;">
+                [ INJETAR CÓDIGO EXTERNO ]
             </label>
             <input type="file" id="fileInput" accept="image/*">
         </div>
@@ -165,21 +141,19 @@
     <!-- JOGO -->
     <div id="jogoTela" class="screen">
         <div class="header-jogo">
-            <button class="btn-voltar" onclick="irParaHome()">Menu</button>
-            <div class="info-missao">
-                <div id="statusFase" class="nivel-tag">Nível 1</div>
-                <div id="nomeObjeto" class="objeto-nome">Círculo</div>
+            <button class="btn-voltar" onclick="irParaHome()">← SAIR</button>
+            <div style="text-align: right;">
+                <div id="statusFase" class="subtitle" style="margin:0; color:var(--accent); font-weight:bold">NÍVEL 01</div>
+                <div id="nomeObjeto" style="font-size: 1rem; font-weight: 700;">AGUARDANDO...</div>
             </div>
         </div>
 
-        <div class="game-area">
-            <div id="binaryDisplay" class="binary-box"></div>
-            <div id="gridDisplay" class="grid"></div>
-            
-            <div class="controls">
-                <button class="btn-main" onclick="validar()">COMPILAR</button>
-                <button class="btn-sec" onclick="limpar()">LIMPAR</button>
-            </div>
+        <div id="binaryDisplay" class="binary-box"></div>
+        <div id="gridDisplay" class="grid"></div>
+        
+        <div class="controls">
+            <button class="btn-game btn-compilar" onclick="validar()">Executar</button>
+            <button class="btn-game btn-limpar" onclick="limpar()">Reset</button>
         </div>
     </div>
 </div>
@@ -194,10 +168,8 @@
     let progresso = parseInt(localStorage.getItem('progressoBinario')) || 0;
 
     const temas = [
-        { bg: "#000000", accent: "#00ff66" }, // Verde Matrix
-        { bg: "#000000", accent: "#38bdf8" }, // Azul Cyber
-        { bg: "#000000", accent: "#ff3e00" }, // Laranja Neon
-        { bg: "#000000", accent: "#a855f7" }  // Roxo Tech
+        { accent: "#00ff66" }, { accent: "#38bdf8" }, 
+        { accent: "#ff3e00" }, { accent: "#a855f7" }
     ];
 
     const bancosDeDados = [
@@ -217,7 +189,7 @@
         const tarefasNivel = bancosDeDados[idx].tarefas;
         const sorteio = tarefasNivel[Math.floor(Math.random() * tarefasNivel.length)];
         mapaBinario = sorteio.mapa;
-        document.getElementById('statusFase').textContent = `Nível ${idx + 1}`;
+        document.getElementById('statusFase').textContent = `MÓDULO 0${idx + 1}`;
         document.getElementById('nomeObjeto').textContent = sorteio.nome;
         montarJogo(mapaBinario[0].length);
     }
@@ -244,8 +216,8 @@
                     }
                     mapaBinario.push(linha);
                 }
-                document.getElementById('statusFase').textContent = "Custom";
-                document.getElementById('nomeObjeto').textContent = "Imagem Externa";
+                document.getElementById('statusFase').textContent = "EXTERNO";
+                document.getElementById('nomeObjeto').textContent = "Custom Script";
                 montarJogo(size);
             };
             img.src = event.target.result;
@@ -286,9 +258,9 @@
         if (!erro) {
             progresso = Math.min(progresso + 1, 2);
             localStorage.setItem('progressoBinario', progresso);
-            setTimeout(() => { alert("✓ Compilado com sucesso!"); irParaHome(); }, 300);
+            setTimeout(() => { alert("✓ SUCESSO: Matriz Validada!"); irParaHome(); }, 300);
         } else {
-            alert("× Erro na compilação. Verifique os bits.");
+            alert("× ERRO: Bits inconsistentes detectados.");
         }
     }
 
