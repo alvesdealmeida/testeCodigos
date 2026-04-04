@@ -15,25 +15,6 @@
             --locked: #374151;
         }
 
-        /* RESTRIÇÃO DESKTOP */
-        #aviso-mobile-apenas {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--bg-gradient);
-            z-index: 9999;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 30px;
-        }
-
-        @media screen and (min-width: 1025px) and (pointer: fine) {
-            #aviso-mobile-apenas { display: flex; }
-            body { overflow: hidden; }
-        }
-
         body {
             margin: 0;
             font-family: 'Segoe UI', system-ui, sans-serif;
@@ -44,6 +25,7 @@
             overflow-x: hidden;
         }
 
+        /* Linhas de código de fundo (Efeito Matrix Educacional) */
         body::before {
             content: "0101 1100 0011 1010 0110 0001\n1010 0011 1100 0110 1010 1111\n0011 1010 0110 1100 0011 1010";
             position: fixed;
@@ -58,13 +40,15 @@
             padding: 20px;
         }
 
-        .screen { display: none; padding: 15px; min-height: 100vh; box-sizing: border-box; }
+        /* TELAS */
+        .screen { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
         .active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
+        /* MENU INICIAL */
         .menu-card {
             background: var(--panel-bg);
             backdrop-filter: blur(10px);
-            padding: 30px 20px;
+            padding: 40px;
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
@@ -73,188 +57,196 @@
         }
 
         h1 {
-            font-size: 2rem;
-            margin-bottom: 5px;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
             background: linear-gradient(to right, #00ff66, #00bcff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0, 255, 102, 0.1);
         }
 
         .mapa-fases {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
-            margin: 20px 0;
+            margin: 30px 0;
         }
 
         .fase-btn {
-            width: 65px; height: 65px;
-            border-radius: 14px;
+            width: 70px; height: 70px;
+            border-radius: 16px;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1rem;
-            transition: all 0.3s;
+            font-weight: bold; font-size: 1.2rem;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
-            color: #4b5563;
-            position: relative;
+            color: #9ca3af;
         }
-        .fase-btn span { font-size: 0.55rem; text-transform: uppercase; margin-top: 2px; }
+        .fase-btn span { font-size: 0.7rem; text-transform: uppercase; margin-top: 2px; }
 
-        /* ESTADO LIBERADO */
         .fase-btn.liberada {
             background: rgba(0, 255, 102, 0.1);
             border-color: var(--accent-green);
             color: var(--accent-green);
-            opacity: 1;
-            cursor: pointer;
-            pointer-events: auto !important;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
-
-        /* ESTADO BLOQUEADO */
-        .fase-btn.bloqueada {
-            opacity: 0.3;
-            filter: grayscale(1);
-            cursor: not-allowed !important;
-            pointer-events: none !important;
+        .fase-btn.liberada:hover {
+            transform: translateY(-5px);
+            background: var(--accent-green);
+            color: #0b0f19;
+            box-shadow: 0 10px 25px var(--accent-glow);
         }
-
-        .fase-btn.bloqueada::after {
-            content: "🔒";
-            position: absolute;
-            top: -5px; right: -5px;
-            font-size: 12px;
-        }
+        .fase-btn.bloqueada { cursor: not-allowed; opacity: 0.5; }
 
         .btn-upload {
-            display: inline-flex; 
-            align-items: center;
-            justify-content: center;
-            width: auto;
-            min-width: 80px;
-            padding: 8px 16px;
-            margin: 10px auto;
+            display: inline-block; width: 100%; max-width: 300px;
+            padding: 15px; margin-top: 10px;
             background: rgba(0, 188, 255, 0.1);
             border: 1px solid #00bcff; color: #00bcff;
-            border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer;
+            border-radius: 12px; font-weight: bold; cursor: pointer;
+            transition: 0.2s;
         }
+        .btn-upload:hover { background: #00bcff; color: #0b0f19; box-shadow: 0 0 15px rgba(0, 188, 255, 0.4); }
 
+        /* JOGO SPLIT SCREEN */
         .game-header { 
             width: 100%; display: flex; justify-content: space-between; 
-            align-items: center; padding: 10px 15px; box-sizing: border-box; 
+            align-items: center; padding: 15px 30px; box-sizing: border-box; 
         }
-
-        .btn-menu-small { padding: 6px 12px !important; font-size: 0.75rem !important; }
-
-        .badge-teste {
-            background-color: #f59e0b;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        #statusFase { font-size: 0.9rem; font-weight: bold; color: #00bcff; }
-        .modo-text { font-size: 11px !important; color: #6b7280; }
 
         .split-container {
             display: flex; width: 100%; flex-grow: 1;
-            margin: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 15px 0; border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
+        .pane {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
+        }
 
+        .left-pane { background: rgba(0, 0, 0, 0.2); border-right: 1px solid rgba(255, 255, 255, 0.1); }
+        .right-pane { background: rgba(0, 0, 0, 0.1); }
+
+        /* BINÁRIO E GRID */
         .binary-list {
             font-family: 'Courier New', monospace;
             color: var(--accent-green);
-            font-size: clamp(0.9rem, 1.8vw, 1.4rem);
-            letter-spacing: 3px;
+            font-size: clamp(1.2rem, 2.2vw, 2rem);
+            letter-spacing: 6px;
+            line-height: 1.4;
+            text-shadow: 0 0 10px var(--accent-glow);
+            text-align: left;
         }
 
-        .grid { display: grid; gap: 3px; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 8px; }
+        .grid { display: grid; gap: 3px; background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 12px; }
         .cell {
-            width: clamp(18px, 4vw, 30px);
-            height: clamp(18px, 4vw, 30px);
+            width: clamp(20px, 4.5vw, 35px);
+            height: clamp(20px, 4.5vw, 35px);
             background: #1f2937;
-            border-radius: 3px;
+            cursor: pointer; border-radius: 4px;
+            transition: all 0.15s;
         }
-        .cell.active { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
-        .cell.correct { background: #10b981; }
-        .cell.wrong { background: #ef4444; }
+        .cell.active { 
+            background: var(--accent-green); 
+            box-shadow: 0 0 12px var(--accent-green);
+        }
+        .cell.correct { background: #10b981 !important; box-shadow: 0 0 15px #10b981; }
+        .cell.wrong { background: #ef4444 !important; box-shadow: 0 0 15px #ef4444; }
 
-        .controls { padding-bottom: 20px; }
+        /* BOTÕES DE AÇÃO */
         button.action-btn {
-            padding: 10px 16px; border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; font-size: 0.8rem;
-            margin: 3px; transition: 0.2s;
-            display: inline-flex; align-items: center; gap: 5px;
+            padding: 12px 24px; border: none; border-radius: 8px;
+            font-weight: bold; cursor: pointer; text-transform: uppercase;
+            margin: 5px; transition: 0.2s;
         }
         .btn-success { background: #10b981; color: white; }
         .btn-primary { background: #00bcff; color: white; }
         .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #9ca3af; }
+        button.action-btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
         input[type="file"] { display: none; }
 
+        /* ADAPTAÇÃO TABLET/MOBILE */
         @media (max-width: 768px) {
             .split-container { flex-direction: column; }
-            .pane { padding: 15px 5px; }
+            .left-pane { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+            .pane { padding: 30px 10px; }
+            .binary-list { letter-spacing: 3px; }
         }
+        .badge-teste {
+    background-color: #f59e0b; /* Amarelo alerta */
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
     </style>
 </head>
 <body>
 
-<div id="aviso-mobile-apenas">
-    <h1>📱 Acesso Restrito</h1>
-    <p>Este simulador foi projetado exclusivamente para <b>dispositivos móveis</b>.</p>
-</div>
-
 <div id="telaMenu" class="screen active">
     <div class="menu-card">
         <h1>Pixel Binário</h1>
-        <p style="font-size: 0.85rem; color: #9ca3af;">Lógica de Programação Visual</p>
+        <p style="color: #9ca3af;">Aprende lógica de programação a descodificar imagens</p>
         
         <div class="mapa-fases">
-            <div id="fase1" class="fase-btn">1<span>Fácil</span></div>
-            <div id="fase2" class="fase-btn">2<span>Médio</span></div>
-            <div id="fase3" class="fase-btn">3<span>Difícil</span></div>
+            <div id="fase1" class="fase-btn liberada" onclick="jogarFaseFica(0)">1<span>Fácil</span></div>
+            <div id="fase2" class="fase-btn bloqueada" onclick="jogarFaseFica(1)">2<span>Médio</span></div>
+            <div id="fase3" class="fase-btn bloqueada" onclick="jogarFaseFica(2)">3<span>Difícil</span></div>
         </div>
+        
+        <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 25px;">
+            Dica: Completa uma fase para desbloquear a seguinte!
+        </p>
 
-        <div style="display: flex; justify-content: center;">
-            <label for="fileInput" class="btn-upload">📁 MODO LIVRE (IMG)</label>
-        </div>
+        <label for="fileInput" class="btn-upload">📁 Enviar Imagem Própria</label>
         <input type="file" id="fileInput" accept="image/*">
     </div>
 </div>
 
 <div id="jogoTela" class="screen">
     <div class="game-header">
-        <button class="action-btn btn-ghost btn-menu-small" onclick="irParaHome()">⬅ Menu</button>
-        <div style="display: flex; flex-direction: column; align-items: center;">
-            <span class="badge-teste">Dev Mode</span>
-        </div>
-        <div style="text-align: right;">
-            <div id="statusFase">Fase</div>
-            <div class="modo-text">Binário ➔ Pixel</div>
-        </div>
+        <button class="action-btn btn-ghost" onclick="irParaHome()">⬅ Menu</button>
+        
+        <!-- LOCAL DO TEXTO "EM TESTE" -->
+       <!-- <span class="badge-teste">Em teste</span>  -->
+        <!-- Aviso de versão -->
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <span class="badge-teste">Em teste</span>
+        <small style="font-size: 10px; color: #6b7280;">v0.8.2</small>
+    </div>
+        
+        <div id="statusFase" style="font-weight: bold; color: #00bcff;">Fase Ativa</div>
+        <div style="font-size: 14px; color: #9ca3af;">Modo: Binário para Pixel</div>
     </div>
     
     <div class="split-container" id="captureTarget">
         <div class="pane left-pane">
-            <span style="color: #4b5563; margin-bottom: 10px; font-size: 9px; font-weight: bold; letter-spacing: 1px;">ALGORITMO</span>
+            <span style="color: #4b5563; margin-bottom: 15px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">ALGORITMO (CÓDIGO)</span>
             <div id="binaryDisplay" class="binary-list"></div>
         </div>
         <div class="pane right-pane">
-            <span style="color: #4b5563; margin-bottom: 10px; font-size: 9px; font-weight: bold; letter-spacing: 1px;">COMPILADOR</span>
+            <span style="color: #4b5563; margin-bottom: 15px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">SISTEMA DE COORDENADAS</span>
             <div id="gridDisplay" class="grid"></div>
         </div>
     </div>
 
-    <div class="controls">
-        <button class="action-btn btn-success" onclick="validar()">⚙️ COMPILAR</button>
-        <button class="action-btn btn-primary" onclick="baixarDesafio()">📥 PNG</button>
-        <button class="action-btn btn-ghost" onclick="limpar()">🧹 RESET</button>
+    <div class="controls" style="margin-bottom: 20px;">
+        <button class="action-btn btn-success" onclick="validar()">✔ Compilar & Executar</button>
+        <button class="action-btn btn-primary" onclick="baixarDesafio()">📥 Exportar PNG</button>
+        <button class="action-btn btn-ghost" onclick="limpar()">🧹 Reset</button>
     </div>
 </div>
 
@@ -264,104 +256,145 @@
     const fileInput = document.getElementById('fileInput');
     const helperCanvas = document.getElementById('helperCanvas');
     const ctx = helperCanvas.getContext('2d');
+    
     let mapaBinario = [];
     let faseAtualIndex = 0;
     
+    // Progresso salvo no navegador: começa na fase 0 (Fase 1)
+    let faseDesbloqueada = parseInt(localStorage.getItem('progressoBinario')) || 0;
+
+    // Banco de Fases Pré-definidas com tamanhos crescentes
     const desafiosDoSistema = [
-        { nome: "Fase 1: Geometria", dados: ["011110","100001","100001","100001","100001","011110"] },
-        { nome: "Fase 2: O Alien", dados: ["0001111000","0011111100","0111111110","1111111111","1100110011","1100110011","1111111111","0110000110","0011111100","0001111000"] },
-        { nome: "Fase 3: Labirinto", dados: ["111111111111","100000000001","101111111101","101000000101","101011110101","101010010101","101010010101","101011110101","101000000101","101111111101","100000000001","111111111111"] }
+        {
+            nome: "Fase 1: Geometria Básica (6x6)",
+            dados: ["011110","100001","100001","100001","100001","011110"] // Quadrado oco
+        },
+        {
+            nome: "Fase 2: O Alien (10x10)",
+            dados: ["0001111000","0011111100","0111111110","1111111111","1100110011","1100110011","1111111111","0110000110","0011111100","0001111000"]
+        },
+        {
+            nome: "Fase 3: Labirinto Lógico (12x12)",
+            dados: ["111111111111","100000000001","101111111101","101000000101","101011110101","101010010101","101010010101","101011110101","101000000101","101111111101","100000000001","111111111111"]
+        }
     ];
 
+    /* LÓGICA DO MAPA DE PROGRESSO */
     function atualizarMapaVisual() {
-        // Se for a primeira vez, define progresso como 0 (apenas fase 1 aberta)
-        if (localStorage.getItem('progressoBinario') === null) {
-            localStorage.setItem('progressoBinario', '0');
-        }
-
-        let faseDesbloqueada = parseInt(localStorage.getItem('progressoBinario'));
-
-        for (let i = 0; i < 3; i++) {
-            const btn = document.getElementById(`fase${i+1}`);
-            
-            // Remove clique anterior para evitar bugs
-            btn.onclick = null;
-
-            if (i <= faseDesbloqueada) {
-                btn.classList.remove('bloqueada');
+        for (let i = 1; i <= 3; i++) {
+            const btn = document.getElementById(`fase${i}`);
+            if (i - 1 <= faseDesbloqueada) {
                 btn.classList.add('liberada');
-                // Atribui o evento de clique via JS para controle total
-                btn.onclick = (function(index) {
-                    return function() { jogarFase(index); };
-                })(i);
+                btn.classList.remove('bloqueada');
             } else {
-                btn.classList.remove('liberada');
                 btn.classList.add('bloqueada');
-                // Bloqueia clique
-                btn.onclick = function(e) { 
-                    e.preventDefault(); 
-                    return false; 
-                };
+                btn.classList.remove('liberada');
             }
         }
     }
 
-    function jogarFase(idx) {
-        faseAtualIndex = idx;
-        mapaBinario = desafiosDoSistema[idx].dados;
-        document.getElementById('statusFase').textContent = desafiosDoSistema[idx].nome;
-        montarJogo(mapaBinario[0].length);
+    function jogarFaseFica(idx) {
+        if (idx <= faseDesbloqueada) {
+            faseAtualIndex = idx;
+            mapaBinario = desafiosDoSistema[idx].dados;
+            document.getElementById('statusFase').textContent = desafiosDoSistema[idx].nome;
+            montarJogo(mapaBinario[0].length);
+        } else {
+            alert("🔒 Esta fase está bloqueada! Completa as anteriores primeiro.");
+        }
     }
 
+    /* LÓGICA DE UPLOAD */
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => processarImagem(img);
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function processarImagem(img) {
+        let w = img.width, h = img.height;
+        const max = 20;
+        if (w > max || h > max) {
+            const ratio = Math.min(max / w, max / h);
+            w = Math.floor(w * ratio); h = Math.floor(h * ratio);
+        }
+        helperCanvas.width = w; helperCanvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        const data = ctx.getImageData(0, 0, w, h).data;
+        mapaBinario = [];
+        for (let y = 0; y < h; y++) {
+            let linha = "";
+            for (let x = 0; x < w; x++) {
+                const i = (y * w + x) * 4;
+                const lum = (data[i] + data[i+1] + data[i+2]) / 3;
+                linha += (lum < 128 && data[i+3] > 50) ? "1" : "0";
+            }
+            mapaBinario.push(linha);
+        }
+        document.getElementById('statusFase').textContent = "Desafio Personalizado";
+        montarJogo(w);
+    }
+
+    /* MONTAGEM DO TABULEIRO */
     function montarJogo(colunas) {
         document.getElementById('telaMenu').classList.remove('active');
         document.getElementById('jogoTela').classList.add('active');
+        
+        // Formata os binários com espaços para facilitar a leitura pedagógica
         const binariosFormatados = mapaBinario.map(linha => [...linha].join(" ")).join('<br>');
         document.getElementById('binaryDisplay').innerHTML = binariosFormatados;
+
         const grid = document.getElementById('gridDisplay');
         grid.innerHTML = "";
         grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
-        
+
         mapaBinario.forEach(linha => {
             [...linha].forEach(bit => {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.bit = bit;
-                cell.onclick = () => { 
-                    cell.classList.toggle('active'); 
-                    cell.classList.remove('correct', 'wrong'); 
+                cell.onclick = () => {
+                    cell.classList.toggle('active');
+                    cell.classList.remove('correct', 'wrong');
                 };
                 grid.appendChild(cell);
             });
         });
     }
 
+    /* VALIDAÇÃO LÓGICA */
     function validar() {
         const cells = document.querySelectorAll('.cell');
         let erro = false;
+        
         cells.forEach(c => {
             const is1 = c.dataset.bit === "1";
             const active = c.classList.contains('active');
+            
             if (is1 && active) c.classList.add('correct');
             else if (!is1 && active) { c.classList.add('wrong'); erro = true; }
             else if (is1 && !active) erro = true;
         });
-
+        
         if (!erro) {
             setTimeout(() => {
-                alert("🎉 Algoritmo Compilado com Sucesso!");
+                alert("🎉 Código compilado com sucesso! Imagem gerada corretamente.");
                 
-                let progressoAtual = parseInt(localStorage.getItem('progressoBinario')) || 0;
-                // Só desbloqueia a próxima se for a fase atual que ele está tentando abrir
-                if (faseAtualIndex === progressoAtual) {
-                    let novoProgresso = faseAtualIndex + 1;
-                    if (novoProgresso > 2) novoProgresso = 2; 
-                    localStorage.setItem('progressoBinario', novoProgresso.toString());
+                // Se venceu uma fase do sistema, desbloqueia a próxima
+                if (faseAtualIndex === faseDesbloqueada && faseDesbloqueada < 2) {
+                    faseDesbloqueada++;
+                    localStorage.setItem('progressoBinario', faseDesbloqueada);
                 }
                 irParaHome();
             }, 300);
-        } else { 
-            alert("❌ Erro de Sintaxe! Verifique os pixels ativos."); 
+        } else {
+            alert("❌ Erro de compilação! O teu desenho não bate certo com o código binário.");
         }
     }
 
@@ -372,21 +405,33 @@
         atualizarMapaVisual();
     }
 
-    function limpar() { 
-        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active', 'correct', 'wrong')); 
+    function limpar() {
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active', 'correct', 'wrong'));
     }
 
     function baixarDesafio() {
         const target = document.getElementById('captureTarget');
+        const originalState = [];
+        
+        // Oculta as cores para tirar a foto limpa
+        document.querySelectorAll('.cell').forEach(c => {
+            originalState.push(c.className);
+            c.className = 'cell'; 
+        });
+        
         html2canvas(target, { backgroundColor: '#0b0f19' }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'meu-codigo-pixel.png';
+            link.download = 'missao-pixels-binarios.png';
             link.href = canvas.toDataURL();
             link.click();
+            
+            // Restaura o estado visual do jogo
+            document.querySelectorAll('.cell').forEach((c, i) => c.className = originalState[i]);
         });
     }
 
-    window.onload = atualizarMapaVisual;
+    // Inicia o mapa ao carregar o jogo
+    atualizarMapaVisual();
 </script>
 </body>
 </html>
