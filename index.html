@@ -56,13 +56,14 @@
       margin: 0 auto;
     }
 
-    /* ── GRADE ── */
+    /* ── GRADE E POSICIONAMENTO DO BOTÃO PLAY ── */
     .grid-section { display: flex; flex-direction: column; align-items: center; width: 100%; }
 
-    .grid-wrap { 
-      position: relative; 
-      width: fit-content; 
-      margin: 0 auto;
+    .layout-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end; /* Alinha o botão à direita da grade */
+      gap: 10px;
     }
 
     .grid {
@@ -96,26 +97,21 @@
 
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
-    /* BOTÃO EXECUTAR QUADRADO - ALINHADO ABAIXO DO 9 */
+    /* BOTÃO EXECUTAR QUADRADO - AGORA FIXO ABAIXO DA GRADE À DIREITA */
     .btn-exec-mini {
-      position: absolute;
-      /* Alinhado à direita da grade */
-      right: -12px;
-      /* Cálculo: 2 células (80px a 130px) + gaps + padding para cair abaixo da linha do 9 */
-      top: calc((clamp(40px, 13vw, 65px) * 2) + 24px); 
-      width: clamp(35px, 11vw, 55px);
-      height: clamp(35px, 11vw, 55px);
-      border-radius: 8px;
+      width: clamp(40px, 13vw, 60px);
+      height: clamp(40px, 13vw, 60px);
+      border-radius: 12px;
       background: var(--success-color);
       color: white;
-      font-size: 20px;
+      font-size: 24px;
       border: none;
       box-shadow: 0 4px 0 #1A7A42;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 50;
+      margin-right: 5px; /* Alinhamento visual com a última coluna */
     }
 
     .btn-exec-mini:active { transform: translateY(2px); box-shadow: 0 2px 0 #1A7A42; }
@@ -125,13 +121,13 @@
     .cmd-row {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin: 15px 0;
+      gap: 8px;
+      margin: 5px 0;
     }
 
     .cmd-btn {
-      width: 60px;
-      height: 60px;
+      width: 58px;
+      height: 58px;
       border: none;
       border-radius: 12px;
       cursor: pointer;
@@ -151,7 +147,7 @@
 
     /* ── OUTROS ── */
     .panel { background: white; border-radius: var(--radius); padding: 12px; border: 2px solid var(--border); }
-    .status-bar { padding: 10px; text-align: center; border-radius: 10px; font-family: 'Fredoka One'; margin-bottom: 10px; border: 2px solid var(--border); }
+    .status-bar { padding: 10px; text-align: center; border-radius: 10px; font-family: 'Fredoka One'; margin-bottom: 5px; border: 2px solid var(--border); }
     .status-bar.success { color: var(--success-color); border-color: var(--success-color); background: #E8FBF0; }
     .status-bar.error { color: var(--error-color); border-color: var(--error-color); background: #FFE8E8; }
 
@@ -186,12 +182,13 @@
       <button onclick="setRandomTarget()" style="padding: 8px 15px; border-radius: 10px; border:none; background: var(--target-color); font-family:'Fredoka One'; cursor:pointer;">🎲 Sortear</button>
     </div>
 
-    <div class="grid-wrap">
+    <!-- Container que agrupa a grade e o botão logo abaixo dela à direita -->
+    <div class="layout-container">
       <div class="grid" id="grid"></div>
       <button class="btn-exec-mini" id="btn-exec" onclick="executeCommands()">▶</button>
     </div>
     
-    <div style="margin-top: 25px; font-size: 12px; color: var(--muted);">🤖 Robô | 🟡 Destino | 👆 Toque na grade</div>
+    <div style="margin-top: 10px; font-size: 11px; color: var(--muted);">🤖 Robô | 🟡 Destino | 👆 Toque na grade</div>
   </section>
 
   <div class="status-bar" id="status-bar">Escolha o destino e programe!</div>
@@ -245,7 +242,7 @@ function playSound(type) {
     }
 }
 
-// ── LÓGICA DO JOGO ──
+// ── LÓGICA DO JOGO (PRESERVADA) ──
 const COLS = 6, ROWS = 6;
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
 const DIRS = { up: { dr: -1, dc: 0, arrow: '⬆' }, down: { dr: 1, dc: 0, arrow: '⬇' }, left: { dr: 0, dc: -1, arrow: '⬅' }, right: { dr: 0, dc: 1, arrow: '➡' } };
@@ -319,7 +316,7 @@ async function executeCommands() {
   executing = false; setControlsDisabled(false); updateButtons();
 }
 
-function resetAll() { robot = { row: 0, col: 0 }; target = null; commands = []; document.getElementById('target-letter').textContent = '?'; document.getElementById('step-num').textContent = '—'; setStatus('neutral', 'Reiniciado!'); renderGrid(); renderQueue(); updateButtons(); }
+function resetAll() { robot = { row: 0, col: 0 }; target = null; commands = []; document.getElementById('target-letter').textContent = '?'; document.getElementById('step-num').textContent = '—'; setStatus('neutral', 'Escolha o destino e programe!'); renderGrid(); renderQueue(); updateButtons(); }
 function setStatus(t, m) { const s = document.getElementById('status-bar'); s.className = 'status-bar ' + t; s.textContent = m; }
 function setControlsDisabled(d) { ['btn-up','btn-down','btn-left','btn-right','btn-undo','btn-clear','btn-exec'].forEach(id => document.getElementById(id).disabled = d); }
 function updateButtons() { document.getElementById('btn-exec').disabled = (commands.length === 0 || !target || executing); }
