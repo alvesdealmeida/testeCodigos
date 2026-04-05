@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Araruama: Guardião de Elite</title>
     <style>
-        :root { --gold: #f4d03f; --danger: #ff4757; --deep-green: #1b4d3e; --success: #2ecc71; --sand: #f5e6be; --sky: #00a8ff; }
+        :root { --gold: #f4d03f; --danger: #ff4757; --deep-green: #1b4d3e; --success: #2ecc71; --sand: #f5e6be; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Georgia', serif; touch-action: none; }
         
+        /* UI de Jogo */
         #ui { position: absolute; top: 10px; left: 10px; right: 10px; color: white; z-index: 10; pointer-events: none; display: none; font-family: sans-serif; }
         #stats { display: flex; justify-content: space-between; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; border: 2px solid var(--gold); }
         .label { color: var(--gold); font-size: 0.6rem; display: block; text-transform: uppercase; }
@@ -15,16 +16,25 @@
         .timer-warn { color: var(--danger); animation: shake 0.2s infinite; }
         @keyframes shake { 0% { transform: translateX(0); } 50% { transform: translateX(2px); } 100% { transform: translateX(0); } }
 
+        /* Botão Desistir (Canto Inferior Direito) */
+        #btn-desistir {
+            position: absolute; bottom: 20px; right: 20px; width: 55px; height: 55px; 
+            background: rgba(0,0,0,0.85); border: 3px solid var(--danger); border-radius: 50%;
+            color: var(--danger); font-size: 1.8rem; display: none; align-items: center; 
+            justify-content: center; z-index: 100; cursor: pointer; box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+        }
+
         #msg-overlay { 
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
             font-size: 2.5rem; font-weight: bold; display: none; z-index: 300;
             text-shadow: 3px 3px 0px #000; pointer-events: none; text-align: center; width: 90%;
         }
 
+        /* Menus */
         .modal { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.85); z-index: 200; 
+            background: rgba(0,0,0,0.9); z-index: 200; 
         }
         .card { 
             background: var(--sand); width: 92%; max-width: 450px; border-radius: 15px; 
@@ -34,12 +44,12 @@
         .card-body { padding: 15px; color: var(--deep-green); }
 
         .tabs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
-        .tab { padding: 6px; background: rgba(0,0,0,0.1); font-size: 0.6rem; cursor: pointer; border-radius: 4px; font-weight: bold; border: 1px solid transparent; }
+        .tab { padding: 8px; background: rgba(0,0,0,0.1); font-size: 0.65rem; cursor: pointer; border-radius: 4px; font-weight: bold; border: 1px solid transparent; }
         .tab.active { background: var(--deep-green); color: var(--gold); border-color: var(--gold); }
 
         .btn-main { 
             background: var(--deep-green); color: var(--gold); padding: 15px; border: none; 
-            border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;
+            border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; text-transform: uppercase;
         }
         
         #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,0,0,0.6); display:none; pointer-events:none; z-index:5; }
@@ -49,6 +59,7 @@
 
 <div id="damage-overlay"></div>
 <div id="msg-overlay"></div>
+<div id="btn-desistir" onclick="desistir()">🚪</div>
 
 <div id="ui">
     <div id="stats">
@@ -58,6 +69,7 @@
     </div>
 </div>
 
+<!-- Menu de Seleção -->
 <div id="modal" class="modal">
     <div class="card">
         <div class="card-header"><h1>MENU DO GUARDIÃO</h1></div>
@@ -71,6 +83,7 @@
     </div>
 </div>
 
+<!-- Modal de Quiz -->
 <div id="quiz-modal" class="modal" style="display:none;">
     <div class="card">
         <div class="card-header"><h1>PROVA DE HONRA</h1></div>
@@ -98,24 +111,24 @@
             {q: "S. Vicente é qual distrito de Araruama?", o: ["1º", "2º", "3º"], a: 1}
         ]},
         { name: "Laguna", title: "O Ciclo do Sal", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#eee", quiz: [
-            {q: "Por que o sal de Araruama era famoso?", o: ["Pelo iodo natural", "Pela alta pureza", "Por ser azul"], a: 1},
-            {q: "Qual era o motor dos antigos moinhos?", o: ["Vapor", "Eletricidade", "Vento"], a: 2}
+            {q: "Por que o sal de Araruama era famoso?", o: ["Pelo iodo", "Pela alta pureza", "Por ser azul"], a: 1},
+            {q: "O que movia os antigos moinhos?", o: ["Vapor", "Eletricidade", "Vento"], a: 2}
         ]},
         { name: "Praia Seca", title: "Entre Mar e Lagoa", icon: "🏄", enemy: "☀️", bg: "#00a8ff", gr: "#f5e6be", quiz: [
             {q: "Praia Seca fica em qual faixa de terra?", o: ["Península", "Ilha", "Restinga de Massambaba"], a: 2},
-            {q: "Qual oceano banha o lado externo da Praia Seca?", o: ["Pacífico", "Atlântico", "Índico"], a: 1}
+            {q: "Qual oceano banha Praia Seca?", o: ["Pacífico", "Atlântico", "Índico"], a: 1}
         ]},
         { name: "Iguabinha", title: "Recanto das Águas", icon: "🛶", enemy: "🦟", bg: "#48dbfb", gr: "#2ecc71", quiz: [
-            {q: "Iguabinha é famosa por suas águas...", o: ["Calmas e medicinais", "Agitadas para surf", "Congeladas"], a: 0},
-            {q: "Qual rodovia corta Iguabinha?", o: ["BR-101", "RJ-106", "Via Lagos"], a: 1}
+            {q: "Como são as águas de Iguabinha?", o: ["Calmas e medicinais", "Agitadas para surf", "Geladas"], a: 0},
+            {q: "Qual rodovia corta o distrito?", o: ["BR-101", "RJ-106", "Via Lagos"], a: 1}
         ]},
         { name: "Morro Grande", title: "Coração Rural", icon: "🐎", enemy: "🚜", bg: "#57606f", gr: "#2f3542", quiz: [
-            {q: "Morro Grande se destaca por qual atividade?", o: ["Pesca de alto mar", "Agropecuária", "Extração de Petróleo"], a: 1},
-            {q: "O relevo de Morro Grande é marcado por:", o: ["Dunas", "Planícies e Colinas", "Cânions"], a: 1}
+            {q: "Qual o destaque de Morro Grande?", o: ["Pesca", "Agropecuária", "Petróleo"], a: 1},
+            {q: "O relevo local é marcado por:", o: ["Dunas", "Planícies e Colinas", "Cânions"], a: 1}
         ]}
     ];
 
-    let level = 0, score = 0, timeLeft = 25, gameActive = false, speedMult = 1.3;
+    let level = 0, score = 0, timeLeft = 25, gameActive = false, speedMult = 1.4;
     let player = { x: 0, y: 0 }; let items = [];
 
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -145,19 +158,20 @@
         const d = districts[level];
         document.getElementById('m-icon').innerText = d.icon;
         document.getElementById('m-title').innerText = d.title;
-        document.getElementById('m-text').innerText = `MISSÃO: Colete 10 ${d.icon} em 25s!`;
+        document.getElementById('m-text').innerText = `Colete 10 ${d.icon} em 25 segundos!`;
     }
 
     function startLevel() {
         initAudio();
         document.getElementById('modal').style.display = 'none';
         document.getElementById('ui').style.display = 'block';
-        score = 0; items = []; timeLeft = 25; speedMult = 1.3 + (level * 0.1); gameActive = true;
+        document.getElementById('btn-desistir').style.display = 'flex';
+        score = 0; items = []; timeLeft = 25; speedMult = 1.4 + (level * 0.1); gameActive = true;
         updateUI();
         clearInterval(gameTimer);
         gameTimer = setInterval(() => {
             timeLeft--;
-            if(timeLeft <= 0) gameOver("FALHA NA MISSÃO: TEMPO ESGOTADO!");
+            if(timeLeft <= 0) gameOver("TEMPO ESGOTADO!");
             updateUI();
         }, 1000);
         for(let i=0; i<8; i++) spawn(true);
@@ -168,17 +182,27 @@
         items.push({ 
             x: Math.random() * (canvas.width - 60) + 30, 
             y: init ? (Math.random() * -canvas.height) : -50, 
-            isG: Math.random() > 0.4,
-            s: (6 + level + Math.random() * 4) * speedMult
+            isG: Math.random() > 0.45,
+            s: (7 + level + Math.random() * 5) * speedMult
         });
     }
 
     function gameOver(txt) {
         gameActive = false; clearInterval(gameTimer);
-        playSnd(100, 'sawtooth', 1);
+        playSnd(100, 'sawtooth', 0.8);
         const m = document.getElementById('msg-overlay');
         m.innerText = txt; m.style.color = "var(--danger)"; m.style.display = 'block';
-        setTimeout(() => { m.style.display = 'none'; document.getElementById('modal').style.display = 'flex'; }, 2500);
+        setTimeout(() => { m.style.display = 'none'; desistir(); }, 2000);
+    }
+
+    function desistir() {
+        gameActive = false;
+        clearInterval(gameTimer);
+        document.getElementById('ui').style.display = 'none';
+        document.getElementById('quiz-modal').style.display = 'none';
+        document.getElementById('btn-desistir').style.display = 'none';
+        document.getElementById('modal').style.display = 'flex';
+        renderTabs(); updateMenu();
     }
 
     function showQuiz() {
@@ -197,16 +221,10 @@
                     playSnd(800, 'sine', 0.5);
                     const m = document.getElementById('msg-overlay');
                     m.innerText = "DISTRITO LIBERADO!"; m.style.color = "var(--success)"; m.style.display = 'block';
-                    setTimeout(() => { 
-                        m.style.display = 'none'; 
-                        level = (level + 1) % districts.length;
-                        document.getElementById('quiz-modal').style.display = 'none';
-                        document.getElementById('modal').style.display = 'flex';
-                        renderTabs(); updateMenu();
-                    }, 2000);
+                    setTimeout(() => { m.style.display = 'none'; level = (level + 1) % districts.length; desistir(); }, 1500);
                 } else {
                     document.getElementById('quiz-modal').style.display = 'none';
-                    gameOver("RESPOSTA ERRADA! ESTUDE MAIS.");
+                    gameOver("RESPOSTA INCORRETA!");
                 }
             };
             opts.appendChild(b);
@@ -230,7 +248,7 @@
                 
                 if(Math.hypot(player.x - it.x, player.y - it.y) < 40) {
                     if(it.isG) { 
-                        score++; speedMult += 0.03; playSnd(600 + score*20, 'sine', 0.1); 
+                        score++; speedMult += 0.04; playSnd(600 + score*20, 'sine', 0.1); 
                     } else { 
                         score = Math.max(0, score - 3); playSnd(150, 'sawtooth', 0.2);
                         document.getElementById('damage-overlay').style.display='block'; 
@@ -248,13 +266,14 @@
         document.getElementById('txt-target').innerText = `${score} / 10`;
         const t = document.getElementById('txt-time');
         t.innerText = timeLeft + "s";
-        t.className = timeLeft <= 7 ? "val timer-warn" : "val";
+        t.className = timeLeft <= 5 ? "val timer-warn" : "val";
         document.getElementById('txt-loc').innerText = districts[level].name;
     }
 
     const mover = (e) => {
-        player.x = e.touches ? e.touches[0].clientX : e.clientX;
-        player.y = e.touches ? e.touches[0].clientY : e.clientY;
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        player.x = cx; player.y = cy;
     };
     window.addEventListener('mousemove', mover);
     window.addEventListener('touchmove', (e) => { mover(e); e.preventDefault(); }, {passive:false});
