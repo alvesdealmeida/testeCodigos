@@ -8,33 +8,44 @@
         :root { --gold: #f4d03f; --danger: #ff4757; --deep-green: #1b4d3e; --success: #2ecc71; --sand: #f5e6be; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Georgia', serif; touch-action: none; }
         
-        /* UI de Jogo */
+        /* UI de Jogo Superior */
         #ui { position: absolute; top: 10px; left: 10px; right: 10px; color: white; z-index: 10; pointer-events: none; display: none; font-family: sans-serif; }
         #stats { display: flex; justify-content: space-between; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; border: 2px solid var(--gold); }
         .label { color: var(--gold); font-size: 0.6rem; display: block; text-transform: uppercase; }
         .val { font-size: 1.1rem; font-weight: bold; }
-        .timer-warn { color: var(--danger); animation: shake 0.2s infinite; }
-        @keyframes shake { 0% { transform: translateX(0); } 50% { transform: translateX(2px); } 100% { transform: translateX(0); } }
 
-        /* Botão Desistir (Canto Inferior Direito) */
+        /* BOTÃO DESISTIR - CANTO INFERIOR DIREITO */
         #btn-desistir {
-            position: absolute; bottom: 20px; right: 20px; width: 55px; height: 55px; 
-            background: rgba(0,0,0,0.85); border: 3px solid var(--danger); border-radius: 50%;
-            color: var(--danger); font-size: 1.8rem; display: none; align-items: center; 
-            justify-content: center; z-index: 100; cursor: pointer; box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+            position: absolute; 
+            bottom: 30px; 
+            right: 20px; 
+            width: 65px; 
+            height: 65px; 
+            background: #800000; /* Vermelho escuro forte */
+            border: 4px solid var(--gold); 
+            border-radius: 50%;
+            color: white; 
+            font-size: 2rem; 
+            display: none; /* Só aparece durante o jogo */
+            align-items: center; 
+            justify-content: center; 
+            z-index: 500; /* Na frente de tudo */
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            -webkit-tap-highlight-color: transparent;
         }
 
         #msg-overlay { 
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 2.5rem; font-weight: bold; display: none; z-index: 300;
+            font-size: 2.2rem; font-weight: bold; display: none; z-index: 600;
             text-shadow: 3px 3px 0px #000; pointer-events: none; text-align: center; width: 90%;
         }
 
-        /* Menus */
+        /* Menus e Modais */
         .modal { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.9); z-index: 200; 
+            background: rgba(0,0,0,0.9); z-index: 400; 
         }
         .card { 
             background: var(--sand); width: 92%; max-width: 450px; border-radius: 15px; 
@@ -59,17 +70,18 @@
 
 <div id="damage-overlay"></div>
 <div id="msg-overlay"></div>
+
+<!-- O BOTÃO SOLICITADO -->
 <div id="btn-desistir" onclick="desistir()">🚪</div>
 
 <div id="ui">
     <div id="stats">
         <div><span class="label">DISTRITO</span><span id="txt-loc" class="val">-</span></div>
         <div><span class="label">TEMPO</span><span id="txt-time" class="val">25s</span></div>
-        <div><span class="label">RELÍQUIAS</span><span id="txt-target" class="val">0 / 10</span></div>
+        <div><span class="label">PONTOS</span><span id="txt-target" class="val">0 / 10</span></div>
     </div>
 </div>
 
-<!-- Menu de Seleção -->
 <div id="modal" class="modal">
     <div class="card">
         <div class="card-header"><h1>MENU DO GUARDIÃO</h1></div>
@@ -78,12 +90,11 @@
             <span id="m-icon" style="font-size: 3.5rem; display: block; margin-bottom: 5px;">🐚</span>
             <h2 id="m-title" style="margin: 5px 0;">-</h2>
             <p id="m-text" style="font-size: 0.85rem; margin-bottom: 15px; height: 40px; font-weight: bold;"></p>
-            <button class="btn-main" onclick="startLevel()">INICIAR MISSÃO</button>
+            <button class="btn-main" onclick="startLevel()">ASSUMIR POSTO</button>
         </div>
     </div>
 </div>
 
-<!-- Modal de Quiz -->
 <div id="quiz-modal" class="modal" style="display:none;">
     <div class="card">
         <div class="card-header"><h1>PROVA DE HONRA</h1></div>
@@ -103,32 +114,26 @@
 
     const districts = [
         { name: "Centro", title: "Sambaquis", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", quiz: [
-            {q: "O que compõe a estrutura dos Sambaquis?", o: ["Conchas e sedimentos", "Lixo moderno", "Pedras vulcânicas"], a: 0},
-            {q: "Araruama era habitada por qual tribo?", o: ["Tupinambás", "Guaranis", "Astecas"], a: 0}
+            {q: "O que compõe a estrutura dos Sambaquis?", o: ["Conchas e sedimentos", "Lixo moderno", "Pedras"], a: 0}
         ]},
         { name: "S. Vicente", title: "Citricultura", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", quiz: [
-            {q: "Qual era o 'ouro verde' de São Vicente?", o: ["Café", "Laranja", "Cana"], a: 1},
-            {q: "S. Vicente é qual distrito de Araruama?", o: ["1º", "2º", "3º"], a: 1}
+            {q: "Qual o 'ouro verde' de S. Vicente?", o: ["Café", "Laranja", "Cana"], a: 1}
         ]},
-        { name: "Laguna", title: "O Ciclo do Sal", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#eee", quiz: [
-            {q: "Por que o sal de Araruama era famoso?", o: ["Pelo iodo", "Pela alta pureza", "Por ser azul"], a: 1},
-            {q: "O que movia os antigos moinhos?", o: ["Vapor", "Eletricidade", "Vento"], a: 2}
+        { name: "Laguna", title: "Ciclo do Sal", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#eee", quiz: [
+            {q: "O que movia os moinhos?", o: ["Vento", "Motor", "Vapor"], a: 0}
         ]},
-        { name: "Praia Seca", title: "Entre Mar e Lagoa", icon: "🏄", enemy: "☀️", bg: "#00a8ff", gr: "#f5e6be", quiz: [
-            {q: "Praia Seca fica em qual faixa de terra?", o: ["Península", "Ilha", "Restinga de Massambaba"], a: 2},
-            {q: "Qual oceano banha Praia Seca?", o: ["Pacífico", "Atlântico", "Índico"], a: 1}
+        { name: "Praia Seca", title: "Restinga", icon: "🏄", enemy: "☀️", bg: "#00a8ff", gr: "#f5e6be", quiz: [
+            {q: "Praia Seca fica em qual restinga?", o: ["Maricá", "Massambaba", "Pontal"], a: 1}
         ]},
-        { name: "Iguabinha", title: "Recanto das Águas", icon: "🛶", enemy: "🦟", bg: "#48dbfb", gr: "#2ecc71", quiz: [
-            {q: "Como são as águas de Iguabinha?", o: ["Calmas e medicinais", "Agitadas para surf", "Geladas"], a: 0},
-            {q: "Qual rodovia corta o distrito?", o: ["BR-101", "RJ-106", "Via Lagos"], a: 1}
+        { name: "Iguabinha", title: "Águas Calmas", icon: "🛶", enemy: "🦟", bg: "#48dbfb", gr: "#2ecc71", quiz: [
+            {q: "As águas de Iguabinha são conhecidas por serem...", o: ["Medicinais", "Geladas", "Onduladas"], a: 0}
         ]},
-        { name: "Morro Grande", title: "Coração Rural", icon: "🐎", enemy: "🚜", bg: "#57606f", gr: "#2f3542", quiz: [
-            {q: "Qual o destaque de Morro Grande?", o: ["Pesca", "Agropecuária", "Petróleo"], a: 1},
-            {q: "O relevo local é marcado por:", o: ["Dunas", "Planícies e Colinas", "Cânions"], a: 1}
+        { name: "Morro Grande", title: "Rural", icon: "🐎", enemy: "🚜", bg: "#57606f", gr: "#2f3542", quiz: [
+            {q: "Qual o destaque de Morro Grande?", o: ["Agropecuária", "Sal", "Pesca"], a: 0}
         ]}
     ];
 
-    let level = 0, score = 0, timeLeft = 25, gameActive = false, speedMult = 1.4;
+    let level = 0, score = 0, timeLeft = 25, gameActive = false, speedMult = 1.5;
     let player = { x: 0, y: 0 }; let items = [];
 
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -165,8 +170,8 @@
         initAudio();
         document.getElementById('modal').style.display = 'none';
         document.getElementById('ui').style.display = 'block';
-        document.getElementById('btn-desistir').style.display = 'flex';
-        score = 0; items = []; timeLeft = 25; speedMult = 1.4 + (level * 0.1); gameActive = true;
+        document.getElementById('btn-desistir').style.display = 'flex'; // APARECE O BOTÃO
+        score = 0; items = []; timeLeft = 25; speedMult = 1.5 + (level * 0.1); gameActive = true;
         updateUI();
         clearInterval(gameTimer);
         gameTimer = setInterval(() => {
@@ -182,8 +187,8 @@
         items.push({ 
             x: Math.random() * (canvas.width - 60) + 30, 
             y: init ? (Math.random() * -canvas.height) : -50, 
-            isG: Math.random() > 0.45,
-            s: (7 + level + Math.random() * 5) * speedMult
+            isG: Math.random() > 0.4,
+            s: (8 + level + Math.random() * 5) * speedMult
         });
     }
 
@@ -195,14 +200,16 @@
         setTimeout(() => { m.style.display = 'none'; desistir(); }, 2000);
     }
 
+    // FUNÇÃO QUE RETORNA AO INÍCIO
     function desistir() {
         gameActive = false;
         clearInterval(gameTimer);
         document.getElementById('ui').style.display = 'none';
         document.getElementById('quiz-modal').style.display = 'none';
-        document.getElementById('btn-desistir').style.display = 'none';
+        document.getElementById('btn-desistir').style.display = 'none'; // SOME O BOTÃO
         document.getElementById('modal').style.display = 'flex';
-        renderTabs(); updateMenu();
+        renderTabs(); 
+        updateMenu();
     }
 
     function showQuiz() {
@@ -248,7 +255,7 @@
                 
                 if(Math.hypot(player.x - it.x, player.y - it.y) < 40) {
                     if(it.isG) { 
-                        score++; speedMult += 0.04; playSnd(600 + score*20, 'sine', 0.1); 
+                        score++; speedMult += 0.05; playSnd(600 + score*20, 'sine', 0.1); 
                     } else { 
                         score = Math.max(0, score - 3); playSnd(150, 'sawtooth', 0.2);
                         document.getElementById('damage-overlay').style.display='block'; 
