@@ -32,8 +32,7 @@
         .modal { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; align-items: center; justify-content: center; 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover; z-index: 200; 
+            background: radial-gradient(circle, #2c5364, #203a43, #0f2027); z-index: 200; 
         }
         .card { 
             background: var(--sand); width: 88%; max-width: 420px; border-radius: 15px; 
@@ -47,16 +46,15 @@
         .card-body { padding: 25px; color: var(--deep-green); }
 
         .tabs { display: flex; gap: 5px; justify-content: center; margin-bottom: 20px; }
-        .tab { padding: 8px; background: rgba(0,0,0,0.05); font-size: 0.7rem; cursor: pointer; border-radius: 4px; flex: 1; border: 1px solid rgba(0,0,0,0.1); font-weight: bold; }
-        .tab.active { background: var(--deep-green); color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .tab { padding: 8px; background: rgba(0,0,0,0.1); font-size: 0.7rem; cursor: pointer; border-radius: 4px; flex: 1; border: 1px solid rgba(0,0,0,0.1); font-weight: bold; }
+        .tab.active { background: var(--deep-green); color: var(--gold); transform: translateY(-2px); }
 
         .btn-main { 
             background: var(--deep-green); color: var(--gold); padding: 20px; border: none; 
             border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; 
             font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 4px 0px #0d2a22; transition: 0.1s;
+            box-shadow: 0 4px 0px #0d2a22;
         }
-        .btn-main:active { transform: translateY(3px); box-shadow: none; }
         
         #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,0,0,0.4); display:none; pointer-events:none; z-index:5; }
         .confetti { position: absolute; width: 10px; height: 10px; z-index: 300; pointer-events: none; }
@@ -70,38 +68,34 @@
 
 <div id="ui">
     <div id="stats">
-        <div><span class="label">MISSÃO ATUAL</span><span id="txt-loc" class="val">-</span></div>
-        <div><span class="label">RELÍQUIAS</span><span id="txt-target" class="val">0 / 10</span></div>
+        <div><span class="label">MISSÃO</span><span id="txt-loc" class="val">-</span></div>
+        <div><span class="label">PONTOS</span><span id="txt-target" class="val">0 / 10</span></div>
     </div>
 </div>
 
-<!-- Menu Principal -->
 <div id="modal" class="modal">
     <div class="card">
         <div class="card-header">
             <h1>GUARDIÃO DE ARARUAMA</h1>
-            <p>Proteja o legado de nossa terra</p>
+            <p>A História em suas mãos</p>
         </div>
         <div class="card-body">
             <div class="tabs">
-                <div class="tab active" onclick="mudarTab(0)">CENTRO</div>
-                <div class="tab" onclick="mudarTab(1)">S. VICENTE</div>
-                <div class="tab" onclick="mudarTab(2)">LAGUNA</div>
+                <div id="t0" class="tab active" onclick="mudarTab(0)">CENTRO</div>
+                <div id="t1" class="tab" onclick="mudarTab(1)">S. VICENTE</div>
+                <div id="t2" class="tab" onclick="mudarTab(2)">LAGUNA</div>
             </div>
-            <span id="m-icon" style="font-size: 4.5rem; display: block; margin-bottom: 10px; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.2));">🐚</span>
+            <span id="m-icon" style="font-size: 4.5rem; display: block; margin-bottom: 10px;">🐚</span>
             <h2 id="m-title" style="margin: 0 0 10px 0;">Os Sambaquis</h2>
-            <p id="m-text" style="font-size: 1rem; margin-bottom: 30px; line-height: 1.5; height: 60px;"></p>
+            <p id="m-text" style="font-size: 1rem; margin-bottom: 30px; line-height: 1.5; min-height: 60px;"></p>
             <button class="btn-main" onclick="startLevel()">ASSUMIR POSTO</button>
         </div>
     </div>
 </div>
 
-<!-- Quiz -->
 <div id="quiz-modal" class="modal" style="display:none; background: rgba(0,0,0,0.9);">
     <div class="card">
-        <div class="card-header">
-            <h1>PROVA DE CONHECIMENTO</h1>
-        </div>
+        <div class="card-header"><h1>DESAFIO FINAL</h1></div>
         <div class="card-body">
             <p id="q-question" style="font-weight:bold; font-size: 1.2rem; margin-bottom: 25px;"></p>
             <div id="q-options" style="display:flex; flex-direction:column; gap:15px;"></div>
@@ -117,16 +111,15 @@
     let audioCtx;
 
     const campaign = [
-        { title: "Os Sambaquis", loc: "Praia do Hospício", info: "Recupere as conchas sagradas e evite os caranguejos invasores.", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", q: "Qual o significado histórico de 'Araruama'?", opts: ["Terra do Sal", "Lugar de Conchas", "Rio das Araras"], ans: 1 },
-        { title: "São Vicente", loc: "Zona Rural", info: "Garanta a colheita de laranjas e afaste as pragas de lagartas.", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", q: "Pelo que São Vicente é historicamente famoso?", opts: ["Pesca de Baleia", "Produção de Laranjas", "Fábrica de Tecidos"], ans: 1 },
-        { title: "Ciclo do Sal", loc: "Moinhos da Laguna", info: "Proteja o precioso sal das tempestades que assolam a laguna.", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#f8f9fa", q: "Qual era a função vital dos moinhos na laguna?", opts: ["Moer Milho", "Bombear Água Salgada", "Sinalizar Navios"], ans: 1 }
+        { title: "Os Sambaquis", loc: "Centro", info: "Recupere as conchas (🐚) e evite os caranguejos (🦀).", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", q: "O que significa 'Araruama'?", opts: ["Terra do Sal", "Lugar de Conchas", "Rio Azul"], ans: 1 },
+        { title: "São Vicente", loc: "2º Distrito", info: "Colha as laranjas (🍊) e afaste as lagartas (🐛).", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", q: "Qual a base histórica de S. Vicente?", opts: ["Indústria", "Citricultura", "Pecuária"], ans: 1 },
+        { title: "Ciclo do Sal", loc: "Laguna", info: "Proteja o sal (🧂) das tempestades (⛈️).", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#fff", q: "Para que serviam os moinhos?", opts: ["Moer Trigo", "Bombear Água", "Gerar Vento"], ans: 1 }
     ];
 
     let level = 0, score = 0, gameActive = false, glow = 0;
     let player = { x: 0, y: 0 }; 
     let items = [];
 
-    // --- SONS ---
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
     function playSnd(f, t, d, v=0.2) {
         if(!audioCtx) return;
@@ -137,12 +130,10 @@
         o.connect(g); g.connect(audioCtx.destination);
         o.start(); o.stop(audioCtx.currentTime + d);
     }
-    const sndWin = () => { [523, 659, 783, 1046].forEach((n, i) => setTimeout(() => playSnd(n, 'square', 0.5), i * 150)); };
 
-    // --- LÓGICA ---
     function mudarTab(idx) {
         level = idx;
-        document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+        for(let i=0; i<3; i++) document.getElementById('t'+i).classList.toggle('active', i === idx);
         const c = campaign[level];
         document.getElementById('m-icon').innerText = c.icon;
         document.getElementById('m-title').innerText = c.title;
@@ -151,9 +142,7 @@
 
     function showMsg(txt, color) {
         const div = document.getElementById('msg-overlay');
-        div.innerText = txt;
-        div.style.color = color;
-        div.style.display = 'block';
+        div.innerText = txt; div.style.color = color; div.style.display = 'block';
         setTimeout(() => div.style.display = 'none', 1500);
     }
 
@@ -165,7 +154,7 @@
         document.getElementById('btn-desistir').style.display = 'flex';
         score = 0; items = []; gameActive = true;
         updateUI();
-        for(let i=0; i<8; i++) spawn(true);
+        for(let i=0; i<6; i++) spawn(true);
     }
 
     function spawn(init = false) {
@@ -173,7 +162,7 @@
         items.push({ 
             x: Math.random() * (canvas.width - 60) + 30, 
             y: init ? (Math.random() * -canvas.height) : -50, 
-            isG: Math.random() > 0.6,
+            isG: Math.random() > 0.5,
             s: (4 + level) + Math.random() * 2
         });
     }
@@ -190,16 +179,17 @@
             b.innerText = o;
             b.onclick = () => {
                 if(i === c.ans) {
-                    sndWin(); lancarConfetes(100);
-                    showMsg("CORRETO!", "var(--success)");
+                    showMsg("CORRETO!", "#2ecc71");
+                    lancarConfetes(80);
+                    playSnd(800, 'sine', 0.5);
                     setTimeout(() => {
                         level = (level + 1) % campaign.length;
                         document.getElementById('quiz-modal').style.display = 'none';
                         desistir();
-                    }, 1800);
+                    }, 2000);
                 } else {
-                    playSnd(100, 'sawtooth', 0.5);
-                    showMsg("TENTE NOVAMENTE", "var(--danger)");
+                    showMsg("ERRADO!", "#ff4757");
+                    playSnd(150, 'sawtooth', 0.5);
                     setTimeout(() => {
                         document.getElementById('quiz-modal').style.display = 'none';
                         startLevel();
@@ -216,10 +206,11 @@
             const c = document.createElement('div');
             c.className = 'confetti';
             c.style.left = Math.random() * 100 + 'vw';
+            c.style.top = '-10px';
             c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
             document.body.appendChild(c);
-            c.animate([{ top: '-20px' }, { top: '100vh', transform: `rotate(${Math.random()*720}deg)` }], { duration: 2000 + Math.random()*2000 });
-            setTimeout(() => c.remove(), 4000);
+            c.animate([{top: '-10px'}, {top: '100vh'}], {duration: 2000 + Math.random()*2000});
+            setTimeout(() => c.remove(), 3000);
         }
     }
 
@@ -230,10 +221,10 @@
             ctx.fillStyle = c.gr; ctx.fillRect(0, canvas.height*0.85, canvas.width, canvas.height*0.15);
             
             ctx.save();
-            if(glow > 0) { ctx.shadowBlur = 25; ctx.shadowColor = "white"; glow--; }
-            ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.beginPath(); 
+            if(glow > 0) { ctx.shadowBlur = 20; ctx.shadowColor = "white"; glow--; }
+            ctx.fillStyle = "white"; ctx.beginPath(); 
             ctx.arc(player.x, player.y, 25, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = var(--gold); ctx.lineWidth = 4; ctx.stroke();
+            ctx.strokeStyle = "#f4d03f"; ctx.lineWidth = 4; ctx.stroke();
             ctx.restore();
 
             for(let i = items.length - 1; i >= 0; i--) {
@@ -242,9 +233,9 @@
                 ctx.fillText(it.isG ? c.icon : c.enemy, it.x, it.y);
                 
                 if(Math.hypot(player.x - it.x, player.y - it.y) < 45) {
-                    if(it.isG) { score++; glow = 15; playSnd(800, 'sine', 0.1); }
+                    if(it.isG) { score++; glow = 10; playSnd(600, 'sine', 0.1); }
                     else { 
-                        score = Math.max(0, score - 2); playSnd(150, 'sawtooth', 0.3);
+                        score = Math.max(0, score - 2); playSnd(200, 'sawtooth', 0.2);
                         document.getElementById('damage-overlay').style.display='block'; 
                         setTimeout(()=>document.getElementById('damage-overlay').style.display='none', 100); 
                     }
@@ -265,17 +256,19 @@
     }
 
     function updateUI() {
-        document.getElementById('txt-target').innerText = `${score} / 10`;
+        document.getElementById('txt-target').innerText = score + " / 10";
         document.getElementById('txt-loc').innerText = campaign[level].loc;
     }
 
     const mover = (e) => {
-        player.x = e.touches ? e.touches[0].clientX : e.clientX;
-        player.y = e.touches ? e.touches[0].clientY : e.clientY;
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        player.x = cx; player.y = cy;
     };
     window.addEventListener('mousemove', mover);
     window.addEventListener('touchmove', (e) => { mover(e); e.preventDefault(); }, {passive:false});
     window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+    
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     player = { x: canvas.width/2, y: canvas.height/2 };
     mudarTab(0);
