@@ -1,368 +1,261 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pixel Binário | Matrix Edition</title>
+    <title>Araruama: Guardião da História</title>
     <style>
-        :root {
-            --bg: #000000;
-            --accent: #00ff66;
-            --text: #ffffff;
-            --secondary: #555555;
+        :root { 
+            --gold: #f4d03f; 
+            --danger: #ff4757; 
+            --deep-green: #1b4d3e; 
+            --laguna-blue: #0077be;
         }
-
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            overflow: hidden;
-        }
-
-        #matrixBg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 1;
-            opacity: 0.25;
-        }
-
-        #app-container {
-            position: relative;
-            z-index: 2;
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-        }
-
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
-        .active { display: flex; }
-
-        /* MENU PRINCIPAL */
-        .menu-container { 
-            margin: auto; 
-            text-align: center; 
-            background: rgba(0,0,0,0.85); 
-            padding: 30px 15px; 
-            border-radius: 30px; 
-            border: 1px solid #222; 
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .fases-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            width: 100%;
-        }
-
-        .fase-btn { 
-            flex: 1; 
-            max-width: 90px;
-            height: 85px; 
-            background: #0a0a0a; 
-            border: 2px solid #222; 
-            border-radius: 20px; 
-            color: #fff; 
-            cursor: not-allowed; /* Padrão bloqueado */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: bold;
-            opacity: 0.3; /* Visual bloqueado */
-            transition: 0.3s;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         
-        .fase-btn small { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; }
+        /* UI de Jogo */
+        #ui { position: absolute; top: 10px; left: 10px; color: white; z-index: 10; pointer-events: none; }
+        #stats { display: flex; gap: 10px; background: rgba(0,0,0,0.8); padding: 12px; border-radius: 12px; border: 2px solid var(--gold); }
+        .label { color: var(--gold); font-size: 0.6rem; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .val { font-size: 0.9rem; font-weight: bold; }
 
-        /* Estilo para quando o nível está liberado */
-        .fase-btn.liberada { 
-            border-color: var(--accent); 
-            opacity: 1; 
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
+        /* Botão Sair/Desistir */
+        #btn-desistir {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 50px; height: 50px; background: rgba(0,0,0,0.7);
+            border: 2px solid var(--danger); border-radius: 50%;
+            color: var(--danger); font-size: 1.5rem; display: flex;
+            align-items: center; justify-content: center; z-index: 50;
+            cursor: pointer; transition: 0.3s;
+        }
+        #btn-desistir:hover { background: var(--danger); color: white; }
+
+        /* Modais e Menus */
+        .modal { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center; 
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            z-index: 100; 
         }
 
-        /* JOGO */
-        .header-jogo {
-            width: 100%;
-            padding: 15px 20px;
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.9);
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); color: #333; width: 90%; max-width: 420px; 
+            border-radius: 25px; overflow: hidden; text-align: center; border: 4px solid var(--gold); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .game-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
+        .card-header { background: var(--deep-green); color: white; padding: 15px; font-size: 1.1rem; font-weight: bold; }
+        .card-body { padding: 25px; }
+
+        /* Abas de Níveis */
+        .tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
+        .tab { padding: 8px 12px; background: #eee; border-radius: 8px; font-size: 0.7rem; font-weight: bold; cursor: pointer; border: 1px solid #ccc; }
+        .tab.active { background: var(--gold); border-color: #b8860b; }
+
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .opt-btn { background: #f1f2f6; border: 2px solid #dfe4ea; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .opt-btn:hover { background: var(--gold); }
+
+        .btn-main { 
+            background: var(--deep-green); color: white; padding: 15px; border: none; 
+            border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; 
+            text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .binary-box {
-            font-family: 'Courier New', monospace;
-            background: rgba(10, 10, 10, 0.8);
-            padding: 15px;
-            border-radius: 12px;
-            color: var(--accent);
-            font-size: 1.2rem;
-            letter-spacing: 6px;
-            border: 1px solid #333;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .grid { 
-            display: grid; 
-            gap: 5px; 
-            padding: 10px; 
-            background: rgba(20, 20, 20, 0.9); 
-            border-radius: 12px; 
-            border: 1px solid #444;
-        }
-
-        .cell { 
-            width: 38px; height: 38px; 
-            background: rgba(60, 60, 60, 0.3); 
-            border-radius: 4px; 
-            border: 1px solid #555;
-        }
-        .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); border-color: #fff; }
-
-        .footer-controls {
-            width: 100%;
-            padding: 15px 20px;
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.95);
-            border-top: 1px solid #222;
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-game {
-            flex: 1;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-        }
-        .btn-compilar { background: var(--accent); color: #000; }
-        .btn-limpar { background: transparent; color: #fff; border: 1px solid #444; }
-
-        #fileInput { display: none; }
-        .upload-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: var(--accent);
-            text-decoration: underline;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,0,0,0.4); display:none; pointer-events:none; z-index:5; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
 
-<canvas id="matrixBg"></canvas>
-
-<div id="app-container">
-    <div id="telaMenu" class="screen active">
-        <div class="menu-container">
-            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.2rem;">PIXEL BINÁRIO</h1>
-            <p style="color:var(--secondary); font-size:0.7rem; letter-spacing: 2px;">MATRIX DECODER</p>
-            
-            <div class="fases-wrapper">
-                <button id="fase0" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
-                <button id="fase1" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
-                <button id="fase2" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
-            </div>
-
-            <label for="fileInput" class="upload-link">INJETAR CÓDIGO EXTERNO</label>
-            <input type="file" id="fileInput" accept="image/*">
-        </div>
+<div id="damage-overlay"></div>
+<div id="ui" style="display:none">
+    <div id="stats">
+        <div><span class="label">MÓDULO</span><span id="txt-lv" class="val">1 / 9</span></div>
+        <div><span class="label">PROGRESSO</span><span id="txt-target" class="val">0 / 10</span></div>
+        <div><span class="label">ZONA</span><span id="txt-loc" class="val">-</span></div>
     </div>
+</div>
 
-    <div id="jogoTela" class="screen">
-        <div class="header-jogo">
-            <button onclick="irParaHome()" style="background:none; border:1px solid #444; color:#888; padding:8px 15px; border-radius:8px;">SAIR</button>
-            <div style="text-align:right">
-                <div id="statusFase" style="color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
-                <div id="nomeObjeto" style="font-weight:900;">OBJETO.EXE</div>
+<div id="btn-desistir" style="display:none" onclick="desistir()">🚪</div>
+
+<!-- Menu Inicial com Abas -->
+<div id="modal" class="modal">
+    <div class="card">
+        <div class="card-header">ARARUAMA: GUARDIÃO DA HISTÓRIA</div>
+        <div class="card-body">
+            <div class="tabs">
+                <div class="tab active" id="t1">MÓDULO 1</div>
+                <div class="tab" id="t2">MÓDULO 2</div>
+                <div class="tab" id="t3">MÓDULO 3</div>
             </div>
-        </div>
-        <div class="game-content">
-            <div id="binaryDisplay" class="binary-box"></div>
-            <div id="gridDisplay" class="grid"></div>
-        </div>
-        <div class="footer-controls">
-            <button class="btn-game btn-limpar" onclick="limpar()">Reset</button>
-            <button class="btn-game btn-compilar" onclick="validar()">Compilar</button>
+            <span style="font-size: 3rem;" id="m-icon">🏛️</span>
+            <h3 id="m-title" style="margin: 10px 0;">Sambaquis e Origens</h3>
+            <p id="m-text" style="font-size: 0.9rem; color: #555; margin-bottom: 20px;"></p>
+            <button class="btn-main" onclick="startLevel()">Iniciar Jornada</button>
         </div>
     </div>
 </div>
 
-<canvas id="helperCanvas" style="display:none;"></canvas>
+<!-- Modal Quiz -->
+<div id="quiz-modal" class="modal" style="display:none">
+    <div class="card">
+        <div class="card-header">🧩 DESAFIO DE ARARUAMA</div>
+        <div class="card-body">
+            <p id="q-question" style="font-weight:bold;"></p>
+            <div id="q-options" class="quiz-options"></div>
+        </div>
+    </div>
+</div>
+
+<canvas id="game"></canvas>
 
 <script>
-    /* FUNDO MATRIX */
-    const mCanvas = document.getElementById('matrixBg');
-    const mCtx = mCanvas.getContext('2d');
-    let drops = [];
-    function initMatrix() {
-        mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
-        drops = Array(Math.floor(mCanvas.width/18)).fill(1);
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(f, t, d) {
+        try {
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.type = t; o.frequency.value = f; g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d);
+        } catch(e){}
     }
-    function drawMatrix() {
-        mCtx.fillStyle = "rgba(0,0,0,0.08)"; mCtx.fillRect(0,0,mCanvas.width,mCanvas.height);
-        mCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-        mCtx.font = "15px monospace";
-        drops.forEach((y, i) => {
-            mCtx.fillText(Math.floor(Math.random()*2), i*18, y*18);
-            if(y*18 > mCanvas.height && Math.random() > 0.98) drops[i] = 0;
-            drops[i]++;
-        });
-    }
-    initMatrix(); setInterval(drawMatrix, 50);
 
-    /* LÓGICA DO JOGO */
-    let mapaBinario = [];
-    let nivelAtual = 0;
-    
-    // Progresso salvo (0 = apenas nível 1 aberto, 1 = nível 2 aberto, 2 = nível 3 aberto)
-    let progresso = parseInt(localStorage.getItem('pixelProgresso')) || 0;
+    let level = 0, score = 0, gameActive = false;
+    let player = { x: 0, y: 0 }; let items = [];
 
-    function jogarNivel(idx) {
-        // CRUCIAL: Bloqueia o clique se o nível for maior que o progresso atual
-        if(idx > progresso) {
-            alert("Acesso negado. Complete o módulo anterior!");
-            return;
-        }
+    const campaign = [
+        { title: "OS SAMBAQUIS", loc: "Centro", info: "Lugar de Conchas! Recupere os artefatos tupi-guarani na Praia do Hospício.", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", q: "O que significa 'Araruama' em Tupi?", opts: ["Terra de Araras", "Lugar de conchas", "Rio Salgado"], ans: 1 },
+        { title: "SÃO VICENTE RURAL", loc: "2º Distrito", info: "O coração agrícola! Proteja a produção de citros e gado das pragas.", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", q: "São Vicente de Paulo é famoso pela produção de:", opts: ["Sal", "Laranja e Limão", "Tecidos"], ans: 1 },
+        { title: "A ESTRADA DE FERRO", loc: "São Vicente", info: "A antiga Ferrovia Maricá passava por aqui. Recupere o carvão perdido!", icon: "🚂", enemy: "⚠️", bg: "#4a4a4a", gr: "#333", q: "Como a produção de São Vicente chegava ao Rio antigamente?", opts: ["Caminhão", "Trem de Ferro", "Barco"], ans: 1 },
+        { title: "LAGUNA HIPERSALINA", loc: "Laguna", info: "A maior do mundo! Colete o 'Ouro Branco' e evite a poluição.", icon: "🧂", enemy: "🗑️", bg: "#0077be", gr: "#fff", q: "A Laguna de Araruama é famosa mundialmente por ser:", opts: ["A mais funda", "A mais salgada", "A única de água doce"], ans: 1 },
+        { title: "MOINHOS DE VENTO", loc: "Orla", info: "Patrimônio histórico! Mantenha as pás girando contra a ventania.", icon: "🌀", enemy: "⛈️", bg: "#3498db", gr: "#eee", q: "Para que serviam os moinhos na orla?", opts: ["Produzir energia", "Bombear água para o sal", "Decoração"], ans: 1 },
+        { title: "PRAIA SECA", loc: "Restinga", info: "A 'Cancun Brasileira'. Salve os surfistas das correntes perigosas!", icon: "🏄", enemy: "🦈", bg: "#00bcd4", gr: "#ffeb3b", q: "Onde se localiza o distrito de Praia Seca?", opts: ["Na Serra", "Na Restinga entre lagoa e mar", "No Centro"], ans: 1 }
+    ];
 
-        nivelAtual = idx;
-        const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
-        document.documentElement.style.setProperty('--accent', temas[idx]);
+    function updateModal() {
+        const c = campaign[level];
+        document.getElementById('m-title').innerText = c.title;
+        document.getElementById('m-icon').innerText = c.icon;
+        document.getElementById('m-text').innerText = c.info;
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('ui').style.display = 'none';
+        document.getElementById('btn-desistir').style.display = 'none';
         
-        const dados = [
-            {m: ["0110", "1111", "1111", "0110"], n: "Bateria"},
-            {m: ["011110", "100001", "101101", "101101", "100001", "011110"], n: "Visor"},
-            {m: ["00111100", "01111110", "11011011", "11111111", "11111111", "11011011", "01111110", "00111100"], n: "Mainframe"}
-        ];
-        
-        mapaBinario = dados[idx].m;
-        document.getElementById('statusFase').textContent = `MÓDULO 0${idx+1}`;
-        document.getElementById('nomeObjeto').textContent = dados[idx].n;
-        montarJogo();
-    }
-
-    function montarJogo() {
-        document.getElementById('telaMenu').classList.remove('active');
-        document.getElementById('jogoTela').classList.add('active');
-        document.getElementById('binaryDisplay').innerHTML = mapaBinario.join('<br>');
-        const grid = document.getElementById('gridDisplay');
-        grid.innerHTML = "";
-        const colunas = mapaBinario[0].length;
-        grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
-        mapaBinario.forEach(linha => {
-            [...linha].forEach(bit => {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.dataset.bit = bit;
-                cell.onclick = () => cell.classList.toggle('active');
-                grid.appendChild(cell);
-            });
-        });
-    }
-
-    function validar() {
-        const cells = document.querySelectorAll('.cell');
-        let erro = false;
-        cells.forEach(c => {
-            const is1 = c.dataset.bit === "1";
-            const active = c.classList.contains('active');
-            if((is1 && !active) || (!is1 && active)) erro = true;
-        });
-
-        if(!erro) {
-            alert("✓ CÓDIGO COMPILADO!");
-            
-            // Se o nível que eu acabei de fazer for igual ao meu progresso, libero o próximo
-            if(nivelAtual === progresso) {
-                progresso++;
-                localStorage.setItem('pixelProgresso', progresso);
-            }
-            
-            irParaHome();
-        } else {
-            alert("× ERRO NA SEQUÊNCIA!");
+        // Atualiza Abas visuais
+        for(let i=1; i<=3; i++) {
+            document.getElementById('t'+i).className = (level >= (i-1)*2) ? 'tab active' : 'tab';
         }
     }
 
-    function irParaHome() {
-        document.getElementById('jogoTela').classList.remove('active');
-        document.getElementById('telaMenu').classList.add('active');
-        atualizarBotoesMenu();
+    function startLevel() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('ui').style.display = 'block';
+        document.getElementById('btn-desistir').style.display = 'flex';
+        score = 0; items = []; 
+        for(let i=0; i<12; i++) spawn(true);
+        gameActive = true; updateUI(); 
+        if(!window.loopIniciado) { loop(); window.loopIniciado = true; }
     }
 
-    function atualizarBotoesMenu() {
-        for(let i=0; i<3; i++) {
-            const b = document.getElementById(`fase${i}`);
-            if(i <= progresso) {
-                b.classList.add('liberada');
-            } else {
-                b.classList.remove('liberada');
-            }
+    function spawn(init = false) {
+        const c = campaign[level];
+        const isGood = Math.random() > 0.45;
+        items.push({ 
+            x: Math.random() * canvas.width, 
+            y: init ? (Math.random() * -canvas.height) : -50, 
+            isG: isGood, 
+            s: (3 + level) + Math.random() * 2,
+            swing: Math.random() * 0.05
+        });
+    }
+
+    function updateUI() {
+        const c = campaign[level];
+        document.getElementById('txt-lv').innerText = `${level + 1} / ${campaign.length}`;
+        document.getElementById('txt-target').innerText = `${score} / 10`;
+        document.getElementById('txt-loc').innerText = c.loc;
+    }
+
+    function desistir() {
+        if(confirm("Deseja interromper a missão e voltar ao menu?")) {
+            gameActive = false;
+            level = 0;
+            updateModal();
         }
     }
 
-    // Processamento de imagem externa (mantém a lógica anterior)
-    document.getElementById('fileInput').onchange = function(e) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                const hCanvas = document.getElementById('helperCanvas');
-                const hCtx = hCanvas.getContext('2d');
-                const size = [4, 6, 8][nivelAtual];
-                hCanvas.width = size; hCanvas.height = size;
-                hCtx.drawImage(img, 0, 0, size, size);
-                const pixels = hCtx.getImageData(0, 0, size, size).data;
-                mapaBinario = [];
-                for (let y = 0; y < size; y++) {
-                    let linha = "";
-                    for (let x = 0; x < size; x++) {
-                        const i = (y * size + x) * 4;
-                        const avg = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-                        linha += (avg < 135) ? "1" : "0";
-                    }
-                    mapaBinario.push(linha);
+    function triggerDamage() {
+        const ov = document.getElementById('damage-overlay');
+        ov.style.display = 'block';
+        setTimeout(() => ov.style.display = 'none', 150);
+    }
+
+    function showQuiz() {
+        gameActive = false; const c = campaign[level];
+        document.getElementById('q-question').innerText = c.q;
+        const div = document.getElementById('q-options'); div.innerHTML = "";
+        c.opts.forEach((o, i) => {
+            const b = document.createElement('button'); b.className = "opt-btn"; b.innerText = o;
+            b.onclick = () => {
+                document.getElementById('quiz-modal').style.display = 'none';
+                if(i === c.ans) { 
+                    playSound(800,'sine',0.3); level++; 
+                    if(level < campaign.length) updateModal(); 
+                    else { alert("VITÓRIA! Você se tornou o Guardião Supremo de Araruama!"); level = 0; updateModal(); }
+                } else { 
+                    playSound(100,'square',0.5); alert("ERRO! O passado foi alterado. Reiniciando zona."); 
+                    score = 0; startLevel(); 
                 }
-                document.getElementById('nomeObjeto').textContent = "UPLOAD.SYS";
-                montarJogo();
-                e.target.value = ""; 
             };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
-    function limpar() {
-        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+            div.appendChild(b);
+        });
+        document.getElementById('quiz-modal').style.display = 'flex';
     }
 
-    // Inicializa o menu com os níveis certos abertos
-    atualizarBotoesMenu();
+    function loop() {
+        if(gameActive) {
+            const c = campaign[level];
+            // CENÁRIO DINÂMICO
+            ctx.fillStyle = c.bg; ctx.fillRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = c.gr; ctx.fillRect(0, canvas.height*0.85, canvas.width, canvas.height*0.15);
+            
+            // Jogador
+            ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, 25, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = var(--gold); ctx.lineWidth = 4; ctx.stroke();
+            
+            items.forEach((it, i) => {
+                it.y += it.s;
+                it.x += Math.sin(it.y * it.swing) * 2;
+                if(it.y > canvas.height) { items.splice(i,1); spawn(); }
+                ctx.font = "35px Arial"; ctx.textAlign = "center";
+                ctx.fillText(it.isG ? c.icon : c.enemy, it.x, it.y);
+                
+                if(Math.hypot(player.x-it.x, player.y-it.y) < 40) {
+                    if(it.isG) { score++; playSound(600,'sine',0.1); }
+                    else { score = Math.max(0, score - 2); playSound(150,'sawtooth',0.3); triggerDamage(); }
+                    items.splice(i, 1); spawn(); updateUI();
+                    if(score >= 10) showQuiz();
+                }
+            });
+        }
+        requestAnimationFrame(loop);
+    }
+
+    const mv = (e) => { 
+        player.x = e.touches ? e.touches[0].clientX : e.clientX; 
+        player.y = e.touches ? e.touches[0].clientY : e.clientY; 
+        if(e.touches) e.preventDefault(); 
+    };
+    window.addEventListener('touchmove', mv, {passive:false});
+    window.addEventListener('mousemove', mv);
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    player = { x: canvas.width/2, y: canvas.height/2 };
+    updateModal();
 </script>
 </body>
 </html>
