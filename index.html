@@ -1,222 +1,34 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pixel Binário | Matrix Edition</title>
-    <style>
-        :root {
-            --bg: #000000;
-            --accent: #00ff66;
-            --text: #ffffff;
-            --secondary: #555555;
-        }
-
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            overflow: hidden;
-        }
-
-        #matrixBg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 1;
-            opacity: 0.25;
-        }
-
-        #app-container {
-            position: relative;
-            z-index: 2;
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-        }
-
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
-        .active { display: flex; }
-
-        .menu-container { 
-            margin: auto; 
-            text-align: center; 
-            background: rgba(0,0,0,0.85); 
-            padding: 30px 15px; 
-            border-radius: 30px; 
-            border: 1px solid #222; 
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .fases-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            width: 100%;
-        }
-
-        .fase-btn { 
-            flex: 1; 
-            max-width: 90px;
-            height: 85px; 
-            background: #0a0a0a; 
-            border: 2px solid #222; 
-            border-radius: 20px; 
-            color: #fff; 
-            cursor: not-allowed;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: bold;
-            opacity: 0.3;
-            transition: 0.3s;
-        }
-        
-        .fase-btn small { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; }
-
-        .fase-btn.liberada { 
-            border-color: var(--accent); 
-            opacity: 1; 
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
-        }
-
-        .header-jogo {
-            width: 100%;
-            padding: 15px 20px;
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.9);
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .game-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
-
-        .binary-box {
-            font-family: 'Courier New', monospace;
-            background: rgba(10, 10, 10, 0.8);
-            padding: 15px;
-            border-radius: 12px;
-            color: var(--accent);
-            font-size: 1.1rem;
-            letter-spacing: 4px;
-            border: 1px solid #333;
-            margin-bottom: 20px;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .grid { 
-            display: grid; 
-            gap: 5px; 
-            padding: 10px; 
-            background: rgba(20, 20, 20, 0.9); 
-            border-radius: 12px; 
-            border: 1px solid #444;
-        }
-
-        .cell { 
-            width: 35px; height: 35px; 
-            background: rgba(60, 60, 60, 0.3); 
-            border-radius: 4px; 
-            border: 1px solid #555;
-        }
-        .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); border-color: #fff; }
-
-        .footer-controls {
-            width: 100%;
-            padding: 15px 20px;
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.95);
-            border-top: 1px solid #222;
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-game {
-            flex: 1;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-        }
-        .btn-compilar { background: var(--accent); color: #000; }
-        .btn-limpar { background: transparent; color: #fff; border: 1px solid #444; }
-
-        #fileInput { display: none; }
-        .upload-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: var(--accent);
-            text-decoration: underline;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-<canvas id="matrixBg"></canvas>
-
-<div id="app-container">
-    <div id="telaMenu" class="screen active">
-        <div class="menu-container">
-            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.2rem;">PIXEL BINÁRIO</h1>
-            <p style="color:var(--secondary); font-size:0.7rem; letter-spacing: 2px;">MATRIX DECODER</p>
-            
-            <div class="fases-wrapper">
-                <button id="fase0" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
-                <button id="fase1" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
-                <button id="fase2" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
-            </div>
-
-            <label for="fileInput" class="upload-link">INJETAR CÓDIGO EXTERNO</label>
-            <input type="file" id="fileInput" accept="image/*">
-        </div>
-    </div>
-
-    <div id="jogoTela" class="screen">
-        <div class="header-jogo">
-            <button onclick="irParaHome()" style="background:none; border:1px solid #444; color:#888; padding:8px 15px; border-radius:8px;">SAIR</button>
-            <div style="text-align:right">
-                <div id="statusFase" style="color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
-                <div id="nomeObjeto" style="font-weight:900;">OBJETO.EXE</div>
-            </div>
-        </div>
-        <div class="game-content">
-            <div id="binaryDisplay" class="binary-box"></div>
-            <div id="gridDisplay" class="grid"></div>
-        </div>
-        <div class="footer-controls">
-            <button class="btn-game btn-limpar" onclick="limpar()">Reset</button>
-            <button class="btn-game btn-compilar" onclick="validar()">Compilar</button>
-        </div>
-    </div>
-</div>
-
-<canvas id="helperCanvas" style="display:none;"></canvas>
-
-<script>
-    const mCanvas = document.getElementById('matrixBg');
+const mCanvas = document.getElementById('matrixBg');
     const mCtx = mCanvas.getContext('2d');
     let drops = [];
+    let timerInterval;
+    let tempoRestante;
+
+    // --- SISTEMA DE ÁUDIO (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const sons = {
+        click: () => playTone(800, 'square', 0.05),
+        sucesso: () => { 
+            playTone(400, 'sine', 0.2); 
+            setTimeout(() => playTone(800, 'sine', 0.4), 100);
+        },
+        erro: () => playTone(100, 'sawtooth', 0.5),
+        levelUp: () => playTone(1200, 'sine', 0.6)
+    };
+
     function initMatrix() {
         mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
         drops = Array(Math.floor(mCanvas.width/18)).fill(1);
@@ -237,23 +49,15 @@
         [
             {m: ["0110", "1111", "1111", "0110"], n: "Cápsula"},
             {m: ["1001", "0110", "0110", "1001"], n: "X-Virus"},
-            {m: ["0110", "1111", "0110", "0110"], n: "Espada"},
-            {m: ["1111", "1001", "1001", "1111"], n: "Frame"},
-            {m: ["1100", "1100", "0011", "0011"], n: "ZigZag"}
+            {m: ["0110", "1111", "0110", "0110"], n: "Espada"}
         ],
         [
             {m: ["011110", "100001", "101101", "101101", "100001", "011110"], n: "Visor"},
-            {m: ["001100", "011110", "111111", "111111", "011110", "001100"], n: "Orbital"},
-            {m: ["110011", "110011", "001100", "001100", "110011", "110011"], n: "DataHub"},
-            {m: ["111111", "100001", "101101", "101101", "100001", "111111"], n: "Microchip"},
-            {m: ["011110", "110011", "110011", "110011", "110011", "011110"], n: "Célula"}
+            {m: ["001100", "011110", "111111", "111111", "011110", "001100"], n: "Orbital"}
         ],
         [
-            {m: ["00111100", "01111110", "11011011", "11111111", "11111111", "11011011", "01111110", "00111100"], n: "Mainframe"},
             {m: ["11111111", "10000001", "10111101", "10111101", "10111101", "10111101", "10000001", "11111111"], n: "Processador"},
-            {m: ["00011000", "00111100", "01111110", "11111111", "11111111", "01111110", "00111100", "00011000"], n: "Diamante"},
-            {m: ["11000011", "11100111", "01111110", "00111100", "00111100", "01111110", "11100111", "11000011"], n: "Nexus"},
-            {m: ["11111111", "11000011", "10111101", "10100101", "10100101", "10111101", "11000011", "11111111"], n: "Escudo"}
+            {m: ["00011000", "00111100", "01111110", "11111111", "11111111", "01111110", "00111100", "00011000"], n: "Diamante"}
         ]
     ];
 
@@ -261,11 +65,32 @@
     let nivelAtual = 0;
     let progresso = parseInt(localStorage.getItem('pixelProgresso')) || 0;
 
+    function iniciarTimer() {
+        clearInterval(timerInterval);
+        const tempos = [60, 45, 30]; // Segundos por nível
+        tempoRestante = tempos[nivelAtual] || 30;
+        
+        timerInterval = setInterval(() => {
+            tempoRestante--;
+            document.getElementById('statusFase').textContent = `MÓDULO 0${nivelAtual+1} | T-${tempoRestante}s`;
+            
+            if(tempoRestante <= 0) {
+                clearInterval(timerInterval);
+                sons.erro();
+                alert("TEMPO ESGOTADO! A Matrix bloqueou seu acesso.");
+                irParaHome();
+            }
+        }, 1000);
+    }
+
     function jogarNivel(idx) {
         if(idx > progresso) {
+            sons.erro();
             alert("Acesso negado. Complete o módulo anterior!");
             return;
         }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
         nivelAtual = idx;
         const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
         document.documentElement.style.setProperty('--accent', temas[idx]);
@@ -274,9 +99,9 @@
         const sorteio = desenhosDoNivel[Math.floor(Math.random() * desenhosDoNivel.length)];
         
         mapaBinario = sorteio.m;
-        document.getElementById('statusFase').textContent = `MÓDULO 0${idx+1}`;
         document.getElementById('nomeObjeto').textContent = sorteio.n;
         montarJogo();
+        iniciarTimer();
     }
 
     function montarJogo() {
@@ -287,12 +112,16 @@
         grid.innerHTML = "";
         const colunas = mapaBinario[0].length;
         grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
+        
         mapaBinario.forEach(linha => {
             [...linha].forEach(bit => {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.bit = bit;
-                cell.onclick = () => cell.classList.toggle('active');
+                cell.onclick = () => {
+                    sons.click();
+                    cell.classList.toggle('active');
+                };
                 grid.appendChild(cell);
             });
         });
@@ -308,9 +137,13 @@
         });
 
         if(!erro) {
+            clearInterval(timerInterval);
+            sons.sucesso();
             alert("✓ CÓDIGO COMPILADO COM SUCESSO!");
+            
             if(nivelAtual === 2) {
-                alert("PARABÉNS! VOCÊ DECODIFICOU A MATRIX. O SISTEMA SERÁ REINICIADO.");
+                sons.levelUp();
+                alert("PARABÉNS! VOCÊ DECODIFICOU A MATRIX.");
                 localStorage.removeItem('pixelProgresso');
                 location.reload(); 
             } else {
@@ -321,11 +154,13 @@
                 irParaHome();
             }
         } else {
+            sons.erro();
             alert("× ERRO NA SEQUÊNCIA! Verifique os bits.");
         }
     }
 
     function irParaHome() {
+        clearInterval(timerInterval);
         document.getElementById('jogoTela').classList.remove('active');
         document.getElementById('telaMenu').classList.add('active');
         atualizarBotoesMenu();
@@ -339,56 +174,9 @@
         }
     }
 
-    // Lógica de Upload Corrigida e Integrada
-    document.getElementById('fileInput').onchange = function(e) {
-        if (!e.target.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                const hCanvas = document.getElementById('helperCanvas');
-                const hCtx = hCanvas.getContext('2d');
-                
-                // Define tamanho pelo progresso atual para não quebrar a lógica do nível
-                const sizes = [4, 6, 8];
-                const pSeguro = progresso > 2 ? 2 : progresso;
-                const size = sizes[pSeguro];
-                nivelAtual = pSeguro;
-
-                hCanvas.width = size; hCanvas.height = size;
-                hCtx.drawImage(img, 0, 0, size, size);
-                const pixels = hCtx.getImageData(0, 0, size, size).data;
-                
-                let novoMapa = [];
-                for (let y = 0; y < size; y++) {
-                    let linha = "";
-                    for (let x = 0; x < size; x++) {
-                        const i = (y * size + x) * 4;
-                        const avg = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-                        linha += (avg < 128) ? "1" : "0";
-                    }
-                    novoMapa.push(linha);
-                }
-
-                mapaBinario = novoMapa;
-                const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
-                document.documentElement.style.setProperty('--accent', temas[nivelAtual]);
-                document.getElementById('statusFase').textContent = `INJECTED_MÓDULO_0${nivelAtual+1}`;
-                document.getElementById('nomeObjeto').textContent = "EXT_DATA.RAW";
-                
-                montarJogo();
-                e.target.value = ""; 
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
     function limpar() {
+        sons.click();
         document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
     }
 
     atualizarBotoesMenu();
-</script>
-</body>
-</html>
