@@ -97,6 +97,13 @@
             align-items: center;
         }
 
+        #timer-display {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff3e00;
+        }
+
         .game-content {
             flex: 1;
             display: flex;
@@ -137,13 +144,6 @@
             transition: 0.1s;
         }
         .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); border-color: #fff; }
-
-        #timer-display {
-            font-family: monospace;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ff3e00;
-        }
 
         .footer-controls {
             width: 100%;
@@ -223,10 +223,11 @@
 <canvas id="helperCanvas" style="display:none;"></canvas>
 
 <script>
-    // --- LÓGICA DE ÁUDIO (FX) ---
+    // --- LÓGICA DE ÁUDIO ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    function playSound(freq, type, duration, vol = 0.1) {
+    function playSound(freq, type, duration, vol = 0.2) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
@@ -240,17 +241,17 @@
     }
 
     const sfx = {
-        click: () => playSound(600, 'square', 0.05),
+        click: () => playSound(600, 'square', 0.05, 0.1),
         win: () => {
             playSound(400, 'sine', 0.2);
             setTimeout(() => playSound(600, 'sine', 0.2), 100);
             setTimeout(() => playSound(800, 'sine', 0.4), 200);
         },
-        error: () => playSound(150, 'sawtooth', 0.4, 0.2),
+        error: () => playSound(150, 'sawtooth', 0.4, 0.3),
         tick: () => playSound(1200, 'sine', 0.02, 0.05)
     };
 
-    // --- BACKGROUND MATRIX ---
+    // --- MATRIX BACKGROUND ---
     const mCanvas = document.getElementById('matrixBg');
     const mCtx = mCanvas.getContext('2d');
     let drops = [];
@@ -270,7 +271,7 @@
     }
     initMatrix(); setInterval(drawMatrix, 50);
 
-    // --- DADOS DO JOGO ---
+    // --- GAME DATA ---
     const NIVEIS_DATA = [
         [
             {m: ["0110", "1111", "1111", "0110"], n: "Cápsula", t: 30},
@@ -293,38 +294,15 @@
     let timerId = null;
     let progresso = parseInt(localStorage.getItem('pixelProgresso')) || 0;
 
-    function iniciarTimer(segundos) {
-        clearInterval(timerId);
-        tempoRestante = segundos;
-        atualizarVisualTimer();
-        timerId = setInterval(() => {
-            tempoRestante--;
-            if(tempoRestante <= 5) sfx.tick();
-            atualizarVisualTimer();
-            if(tempoRestante <= 0) {
-                clearInterval(timerId);
-                sfx.error();
-                alert("CONEXÃO PERDIDA: Tempo esgotado!");
-                irParaHome();
-            }
-        }, 1000);
-    }
-
-    function atualizarVisualTimer() {
-        const min = Math.floor(tempoRestante / 60);
-        const seg = tempoRestante % 60;
-        document.getElementById('timer-display').textContent = 
-            `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
-    }
-
     function jogarNivel(idx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
         if(idx > progresso) {
             sfx.error();
             alert("Acesso negado. Complete o módulo anterior!");
             return;
         }
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
+
         nivelAtual = idx;
         const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
         document.documentElement.style.setProperty('--accent', temas[idx]);
@@ -338,6 +316,30 @@
         
         montarJogo();
         iniciarTimer(sorteio.t);
+    }
+
+    function iniciarTimer(segundos) {
+        clearInterval(timerId);
+        tempoRestante = segundos;
+        atualizarVisualTimer();
+        timerId = setInterval(() => {
+            tempoRestante--;
+            if(tempoRestante <= 5 && tempoRestante > 0) sfx.tick();
+            atualizarVisualTimer();
+            if(tempoRestante <= 0) {
+                clearInterval(timerId);
+                sfx.error();
+                alert("TEMPO ESGOTADO! Conexão perdida.");
+                irParaHome();
+            }
+        }, 1000);
+    }
+
+    function atualizarVisualTimer() {
+        const min = Math.floor(tempoRestante / 60);
+        const seg = tempoRestante % 60;
+        document.getElementById('timer-display').textContent = 
+            `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
     }
 
     function montarJogo() {
@@ -408,6 +410,7 @@
         }
     }
 
+    // Lógica de Upload
     document.getElementById('fileInput').onchange = function(e) {
         if (!e.target.files[0]) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -441,7 +444,7 @@
                 document.getElementById('statusFase').textContent = `INJECTED_MÓDULO_0${nivelAtual+1}`;
                 document.getElementById('nomeObjeto').textContent = "EXT_DATA.RAW";
                 montarJogo();
-                iniciarTimer(60); 
+                iniciarTimer(60);
                 e.target.value = ""; 
             };
             img.src = event.target.result;
