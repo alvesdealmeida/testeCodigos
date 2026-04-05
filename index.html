@@ -64,7 +64,7 @@
             <span id="m-icon" style="font-size: 4rem; display: block; margin-bottom: 10px;">🐚</span>
             <h2 id="m-title" style="margin-bottom: 10px;">Os Sambaquis</h2>
             <p id="m-text" style="font-size: 0.95rem; color: #555; margin-bottom: 25px; line-height: 1.4;"></p>
-            <button class="btn-main" onclick="startLevel()">INICIAR COM SOM 🔊</button>
+            <button class="btn-main" onclick="startLevel()">JOGAR COM SOM 🔊</button>
         </div>
     </div>
 </div>
@@ -85,12 +85,9 @@
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     
-    // Configuração de Áudio
     let audioCtx;
     function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
     function playSound(freq, type, duration, vol = 0.2) {
@@ -107,12 +104,19 @@
         osc.stop(audioCtx.currentTime + duration);
     }
 
-    // Sons específicos
-    function soundCollect() { playSound(800, 'sine', 0.2); setTimeout(() => playSound(1200, 'sine', 0.2), 50); }
-    function soundHit() { playSound(150, 'sawtooth', 0.5, 0.3); }
-    function soundVictory() {
-        const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((n, i) => setTimeout(() => playSound(n, 'square', 0.4), i * 150));
+    // --- SONS ATUALIZADOS ---
+    function soundCollect() { // Som de acerto
+        playSound(600, 'sine', 0.1); 
+        setTimeout(() => playSound(900, 'sine', 0.15), 50); 
+    }
+    
+    function soundHit() { // Som de erro
+        playSound(150, 'sawtooth', 0.4, 0.3); 
+    }
+
+    function soundVictory() { // Fanfarra final
+        const notes = [523, 659, 783, 1046, 1318];
+        notes.forEach((n, i) => setTimeout(() => playSound(n, 'square', 0.5, 0.15), i * 150));
     }
 
     let level = 0, score = 0, gameActive = false;
@@ -120,9 +124,9 @@
     let items = [];
 
     const campaign = [
-        { title: "Os Sambaquis", loc: "Centro", info: "Pegue as Conchas (🐚). Desvie dos Caranguejos (🦀)!", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", q: "O que significa Araruama?", opts: ["Terra do Sal", "Lugar de Conchas", "Rio Azul"], ans: 1 },
-        { title: "São Vicente", loc: "2º Distrito", info: "Colha Laranjas (🍊). Fuja das Lagartas (🐛)!", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", q: "Qual a base da economia de S. Vicente?", opts: ["Indústria", "Citricultura (Laranja)", "Turismo Marítimo"], ans: 1 },
-        { title: "Salinas", loc: "Laguna", info: "Recolha o Sal (🧂). Fuja da Tempestade (⛈️)!", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#fff", q: "Para que serviam os moinhos?", opts: ["Moer Trigo", "Bombear Água Salgada", "Gerar Energia Elétrica"], ans: 1 }
+        { title: "Os Sambaquis", loc: "Centro", info: "Recolha as Conchas (🐚). Cuidado com os Caranguejos (🦀)!", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", q: "O que significa Araruama?", opts: ["Terra do Sal", "Lugar de Conchas", "Rio Azul"], ans: 1 },
+        { title: "São Vicente", loc: "2º Distrito", info: "Colha as Laranjas (🍊). Fuja das Lagartas (🐛)!", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", q: "Qual a base da economia de S. Vicente?", opts: ["Indústria", "Citricultura", "Turismo Marítimo"], ans: 1 },
+        { title: "Ciclo do Sal", loc: "Laguna", info: "O Ouro Branco (🧂). Fuja das Tempestades (⛈️)!", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#fff", q: "Para que serviam os moinhos?", opts: ["Moer Trigo", "Bombear Água", "Energia"], ans: 1 }
     ];
 
     function mudarTab(idx) {
@@ -137,7 +141,6 @@
     function startLevel() {
         initAudio();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        
         document.getElementById('modal').style.display = 'none';
         document.getElementById('ui').style.display = 'block';
         document.getElementById('btn-desistir').style.display = 'flex';
@@ -152,10 +155,24 @@
         items.push({ 
             x: Math.random() * (canvas.width - 60) + 30, 
             y: init ? (Math.random() * -canvas.height) : -50, 
-            isG: Math.random() > 0.5, 
+            isG: Math.random() > 0.6, // Itens bons são um pouco mais raros
             s: (4 + level) + Math.random() * 2,
             icon: c.icon, enemy: c.enemy
         });
+    }
+
+    function lancarConfetes(quantidade = 60) {
+        for(let i=0; i<quantidade; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.top = '-20px';
+            c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+            document.body.appendChild(c);
+            c.animate([{ top: '-20px' }, { top: '100vh', transform: `rotate(${Math.random()*720}deg)` }], 
+                { duration: 2000 + Math.random()*2000 });
+            setTimeout(() => c.remove(), 4000);
+        }
     }
 
     function showQuiz() {
@@ -170,16 +187,19 @@
             b.innerText = o;
             b.onclick = () => {
                 if(i === c.ans) {
-                    lancarConfetes();
                     soundVictory();
-                    setTimeout(() => {
-                        level = (level + 1) % campaign.length;
-                        document.getElementById('quiz-modal').style.display = 'none';
-                        desistir();
-                    }, 2000);
+                    lancarConfetes(100);
+                    if(level === 2) {
+                        alert("VOCÊ SE TORNOU O GUARDIÃO MESTRE DE ARARUAMA! 🎉");
+                    } else {
+                        alert("Nível Concluído! Você protegeu nossa história.");
+                    }
+                    level = (level + 1) % campaign.length;
+                    document.getElementById('quiz-modal').style.display = 'none';
+                    desistir();
                 } else {
                     soundHit();
-                    alert("Errado! Estude mais a história de Araruama.");
+                    alert("A história foi esquecida... Tente novamente!");
                     document.getElementById('quiz-modal').style.display = 'none';
                     startLevel();
                 }
@@ -187,19 +207,6 @@
             optsDiv.appendChild(b);
         });
         document.getElementById('quiz-modal').style.display = 'flex';
-    }
-
-    function lancarConfetes() {
-        for(let i=0; i<60; i++) {
-            const c = document.createElement('div');
-            c.className = 'confetti';
-            c.style.left = Math.random() * 100 + 'vw';
-            c.style.top = '-20px';
-            c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            document.body.appendChild(c);
-            c.animate([{ top: '-20px' }, { top: '100vh', transform: `rotate(${Math.random()*360}deg)` }], { duration: 2000 + Math.random()*1000 });
-            setTimeout(() => c.remove(), 3000);
-        }
     }
 
     function loop() {
@@ -219,9 +226,12 @@
                 ctx.fillText(it.isG ? it.icon : it.enemy, it.x, it.y);
                 
                 if(Math.hypot(player.x - it.x, player.y - it.y) < 45) {
-                    if(it.isG) { score++; soundCollect(); }
-                    else { 
-                        score = Math.max(0, score - 2); soundHit();
+                    if(it.isG) { 
+                        score++; 
+                        soundCollect(); 
+                    } else { 
+                        score = Math.max(0, score - 2); 
+                        soundHit();
                         document.getElementById('damage-overlay').style.display='block'; 
                         setTimeout(()=>document.getElementById('damage-overlay').style.display='none', 100); 
                     }
@@ -237,6 +247,7 @@
 
     function desistir() {
         gameActive = false;
+        items = [];
         document.getElementById('ui').style.display = 'none';
         document.getElementById('btn-desistir').style.display = 'none';
         document.getElementById('modal').style.display = 'flex';
