@@ -1,294 +1,394 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Araruama: Guardião de Elite</title>
+    <title>Pixel Binário | Matrix Edition</title>
     <style>
-        :root { --gold: #f4d03f; --danger: #ff4757; --deep-green: #1b4d3e; --success: #2ecc71; --sand: #f5e6be; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Georgia', serif; touch-action: none; }
-        
-        /* UI de Jogo Superior */
-        #ui { position: absolute; top: 10px; left: 10px; right: 10px; color: white; z-index: 10; pointer-events: none; display: none; font-family: sans-serif; }
-        #stats { display: flex; justify-content: space-between; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; border: 2px solid var(--gold); }
-        .label { color: var(--gold); font-size: 0.6rem; display: block; text-transform: uppercase; }
-        .val { font-size: 1.1rem; font-weight: bold; }
+        :root {
+            --bg: #000000;
+            --accent: #00ff66;
+            --text: #ffffff;
+            --secondary: #555555;
+        }
 
-        /* BOTÃO DESISTIR - CANTO INFERIOR DIREITO */
-        #btn-desistir {
-            position: absolute; 
-            bottom: 30px; 
-            right: 20px; 
-            width: 65px; 
-            height: 65px; 
-            background: #800000; /* Vermelho escuro forte */
-            border: 4px solid var(--gold); 
-            border-radius: 50%;
-            color: white; 
-            font-size: 2rem; 
-            display: none; /* Só aparece durante o jogo */
-            align-items: center; 
-            justify-content: center; 
-            z-index: 500; /* Na frente de tudo */
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        #matrixBg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+            opacity: 0.25;
+        }
+
+        #app-container {
+            position: relative;
+            z-index: 2;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+        }
+
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
+        .active { display: flex; }
+
+        .menu-container { 
+            margin: auto; 
+            text-align: center; 
+            background: rgba(0,0,0,0.85); 
+            padding: 30px 15px; 
+            border-radius: 30px; 
+            border: 1px solid #222; 
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .fases-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .fase-btn { 
+            flex: 1; 
+            max-width: 90px;
+            height: 85px; 
+            background: #0a0a0a; 
+            border: 2px solid #222; 
+            border-radius: 20px; 
+            color: #fff; 
+            cursor: not-allowed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            opacity: 0.3;
+            transition: 0.3s;
+        }
+        
+        .fase-btn small { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; }
+
+        .fase-btn.liberada { 
+            border-color: var(--accent); 
+            opacity: 1; 
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.1);
         }
 
-        #msg-overlay { 
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 2.2rem; font-weight: bold; display: none; z-index: 600;
-            text-shadow: 3px 3px 0px #000; pointer-events: none; text-align: center; width: 90%;
+        .header-jogo {
+            width: 100%;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Menus e Modais */
-        .modal { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            display: flex; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.9); z-index: 400; 
+        .game-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
         }
-        .card { 
-            background: var(--sand); width: 92%; max-width: 450px; border-radius: 15px; 
-            overflow: hidden; text-align: center; border: 4px solid var(--deep-green);
-        }
-        .card-header { background: var(--deep-green); color: var(--gold); padding: 15px; }
-        .card-body { padding: 15px; color: var(--deep-green); }
 
-        .tabs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
-        .tab { padding: 8px; background: rgba(0,0,0,0.1); font-size: 0.65rem; cursor: pointer; border-radius: 4px; font-weight: bold; border: 1px solid transparent; }
-        .tab.active { background: var(--deep-green); color: var(--gold); border-color: var(--gold); }
-
-        .btn-main { 
-            background: var(--deep-green); color: var(--gold); padding: 15px; border: none; 
-            border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; text-transform: uppercase;
+        .binary-box {
+            font-family: 'Courier New', monospace;
+            background: rgba(10, 10, 10, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+            color: var(--accent);
+            font-size: 1.1rem;
+            letter-spacing: 4px;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.2;
         }
-        
-        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,0,0,0.6); display:none; pointer-events:none; z-index:5; }
+
+        .grid { 
+            display: grid; 
+            gap: 5px; 
+            padding: 10px; 
+            background: rgba(20, 20, 20, 0.9); 
+            border-radius: 12px; 
+            border: 1px solid #444;
+        }
+
+        .cell { 
+            width: 35px; height: 35px; 
+            background: rgba(60, 60, 60, 0.3); 
+            border-radius: 4px; 
+            border: 1px solid #555;
+        }
+        .cell.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); border-color: #fff; }
+
+        .footer-controls {
+            width: 100%;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 1px solid #222;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-game {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-compilar { background: var(--accent); color: #000; }
+        .btn-limpar { background: transparent; color: #fff; border: 1px solid #444; }
+
+        #fileInput { display: none; }
+        .upload-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--accent);
+            text-decoration: underline;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<div id="damage-overlay"></div>
-<div id="msg-overlay"></div>
+<canvas id="matrixBg"></canvas>
 
-<!-- O BOTÃO SOLICITADO -->
-<div id="btn-desistir" onclick="desistir()">🚪</div>
+<div id="app-container">
+    <div id="telaMenu" class="screen active">
+        <div class="menu-container">
+            <h1 style="margin:0; letter-spacing:-2px; font-size: 2.2rem;">PIXEL BINÁRIO</h1>
+            <p style="color:var(--secondary); font-size:0.7rem; letter-spacing: 2px;">MATRIX DECODER</p>
+            
+            <div class="fases-wrapper">
+                <button id="fase0" class="fase-btn" onclick="jogarNivel(0)">01<br><small>Fácil</small></button>
+                <button id="fase1" class="fase-btn" onclick="jogarNivel(1)">02<br><small>Médio</small></button>
+                <button id="fase2" class="fase-btn" onclick="jogarNivel(2)">03<br><small>Hard</small></button>
+            </div>
 
-<div id="ui">
-    <div id="stats">
-        <div><span class="label">DISTRITO</span><span id="txt-loc" class="val">-</span></div>
-        <div><span class="label">TEMPO</span><span id="txt-time" class="val">25s</span></div>
-        <div><span class="label">PONTOS</span><span id="txt-target" class="val">0 / 10</span></div>
+            <label for="fileInput" class="upload-link">INJETAR CÓDIGO EXTERNO</label>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
     </div>
-</div>
 
-<div id="modal" class="modal">
-    <div class="card">
-        <div class="card-header"><h1>MENU DO GUARDIÃO</h1></div>
-        <div class="card-body">
-            <div class="tabs-grid" id="tabs-container"></div>
-            <span id="m-icon" style="font-size: 3.5rem; display: block; margin-bottom: 5px;">🐚</span>
-            <h2 id="m-title" style="margin: 5px 0;">-</h2>
-            <p id="m-text" style="font-size: 0.85rem; margin-bottom: 15px; height: 40px; font-weight: bold;"></p>
-            <button class="btn-main" onclick="startLevel()">ASSUMIR POSTO</button>
+    <div id="jogoTela" class="screen">
+        <div class="header-jogo">
+            <button onclick="irParaHome()" style="background:none; border:1px solid #444; color:#888; padding:8px 15px; border-radius:8px;">SAIR</button>
+            <div style="text-align:right">
+                <div id="statusFase" style="color:var(--accent); font-weight:bold; font-size:0.7rem;">MÓDULO 01</div>
+                <div id="nomeObjeto" style="font-weight:900;">OBJETO.EXE</div>
+            </div>
+        </div>
+        <div class="game-content">
+            <div id="binaryDisplay" class="binary-box"></div>
+            <div id="gridDisplay" class="grid"></div>
+        </div>
+        <div class="footer-controls">
+            <button class="btn-game btn-limpar" onclick="limpar()">Reset</button>
+            <button class="btn-game btn-compilar" onclick="validar()">Compilar</button>
         </div>
     </div>
 </div>
 
-<div id="quiz-modal" class="modal" style="display:none;">
-    <div class="card">
-        <div class="card-header"><h1>PROVA DE HONRA</h1></div>
-        <div class="card-body">
-            <p id="q-question" style="font-weight:bold; font-size: 1.1rem; margin-bottom: 20px;"></p>
-            <div id="q-options" style="display:flex; flex-direction:column; gap:10px;"></div>
-        </div>
-    </div>
-</div>
-
-<canvas id="game"></canvas>
+<canvas id="helperCanvas" style="display:none;"></canvas>
 
 <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    let audioCtx, gameTimer;
+    const mCanvas = document.getElementById('matrixBg');
+    const mCtx = mCanvas.getContext('2d');
+    let drops = [];
+    function initMatrix() {
+        mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
+        drops = Array(Math.floor(mCanvas.width/18)).fill(1);
+    }
+    function drawMatrix() {
+        mCtx.fillStyle = "rgba(0,0,0,0.08)"; mCtx.fillRect(0,0,mCanvas.width,mCanvas.height);
+        mCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+        mCtx.font = "15px monospace";
+        drops.forEach((y, i) => {
+            mCtx.fillText(Math.floor(Math.random()*2), i*18, y*18);
+            if(y*18 > mCanvas.height && Math.random() > 0.98) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+    initMatrix(); setInterval(drawMatrix, 50);
 
-    const districts = [
-        { name: "Centro", title: "Sambaquis", icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", quiz: [
-            {q: "O que compõe a estrutura dos Sambaquis?", o: ["Conchas e sedimentos", "Lixo moderno", "Pedras"], a: 0}
-        ]},
-        { name: "S. Vicente", title: "Citricultura", icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", quiz: [
-            {q: "Qual o 'ouro verde' de S. Vicente?", o: ["Café", "Laranja", "Cana"], a: 1}
-        ]},
-        { name: "Laguna", title: "Ciclo do Sal", icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#eee", quiz: [
-            {q: "O que movia os moinhos?", o: ["Vento", "Motor", "Vapor"], a: 0}
-        ]},
-        { name: "Praia Seca", title: "Restinga", icon: "🏄", enemy: "☀️", bg: "#00a8ff", gr: "#f5e6be", quiz: [
-            {q: "Praia Seca fica em qual restinga?", o: ["Maricá", "Massambaba", "Pontal"], a: 1}
-        ]},
-        { name: "Iguabinha", title: "Águas Calmas", icon: "🛶", enemy: "🦟", bg: "#48dbfb", gr: "#2ecc71", quiz: [
-            {q: "As águas de Iguabinha são conhecidas por serem...", o: ["Medicinais", "Geladas", "Onduladas"], a: 0}
-        ]},
-        { name: "Morro Grande", title: "Rural", icon: "🐎", enemy: "🚜", bg: "#57606f", gr: "#2f3542", quiz: [
-            {q: "Qual o destaque de Morro Grande?", o: ["Agropecuária", "Sal", "Pesca"], a: 0}
-        ]}
+    const NIVEIS_DATA = [
+        [
+            {m: ["0110", "1111", "1111", "0110"], n: "Cápsula"},
+            {m: ["1001", "0110", "0110", "1001"], n: "X-Virus"},
+            {m: ["0110", "1111", "0110", "0110"], n: "Espada"},
+            {m: ["1111", "1001", "1001", "1111"], n: "Frame"},
+            {m: ["1100", "1100", "0011", "0011"], n: "ZigZag"}
+        ],
+        [
+            {m: ["011110", "100001", "101101", "101101", "100001", "011110"], n: "Visor"},
+            {m: ["001100", "011110", "111111", "111111", "011110", "001100"], n: "Orbital"},
+            {m: ["110011", "110011", "001100", "001100", "110011", "110011"], n: "DataHub"},
+            {m: ["111111", "100001", "101101", "101101", "100001", "111111"], n: "Microchip"},
+            {m: ["011110", "110011", "110011", "110011", "110011", "011110"], n: "Célula"}
+        ],
+        [
+            {m: ["00111100", "01111110", "11011011", "11111111", "11111111", "11011011", "01111110", "00111100"], n: "Mainframe"},
+            {m: ["11111111", "10000001", "10111101", "10111101", "10111101", "10111101", "10000001", "11111111"], n: "Processador"},
+            {m: ["00011000", "00111100", "01111110", "11111111", "11111111", "01111110", "00111100", "00011000"], n: "Diamante"},
+            {m: ["11000011", "11100111", "01111110", "00111100", "00111100", "01111110", "11100111", "11000011"], n: "Nexus"},
+            {m: ["11111111", "11000011", "10111101", "10100101", "10100101", "10111101", "11000011", "11111111"], n: "Escudo"}
+        ]
     ];
 
-    let level = 0, score = 0, timeLeft = 25, gameActive = false, speedMult = 1.5;
-    let player = { x: 0, y: 0 }; let items = [];
+    let mapaBinario = [];
+    let nivelAtual = 0;
+    let progresso = parseInt(localStorage.getItem('pixelProgresso')) || 0;
 
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function playSnd(f, t, d, v=0.2) {
-        if(!audioCtx) return;
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-        g.gain.setValueAtTime(v, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + d);
-    }
-
-    function renderTabs() {
-        const container = document.getElementById('tabs-container');
-        container.innerHTML = "";
-        districts.forEach((d, i) => {
-            const t = document.createElement('div');
-            t.className = `tab ${i === level ? 'active' : ''}`;
-            t.innerText = d.name.toUpperCase();
-            t.onclick = () => { level = i; renderTabs(); updateMenu(); };
-            container.appendChild(t);
-        });
-    }
-
-    function updateMenu() {
-        const d = districts[level];
-        document.getElementById('m-icon').innerText = d.icon;
-        document.getElementById('m-title').innerText = d.title;
-        document.getElementById('m-text').innerText = `Colete 10 ${d.icon} em 25 segundos!`;
-    }
-
-    function startLevel() {
-        initAudio();
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('ui').style.display = 'block';
-        document.getElementById('btn-desistir').style.display = 'flex'; // APARECE O BOTÃO
-        score = 0; items = []; timeLeft = 25; speedMult = 1.5 + (level * 0.1); gameActive = true;
-        updateUI();
-        clearInterval(gameTimer);
-        gameTimer = setInterval(() => {
-            timeLeft--;
-            if(timeLeft <= 0) gameOver("TEMPO ESGOTADO!");
-            updateUI();
-        }, 1000);
-        for(let i=0; i<8; i++) spawn(true);
-    }
-
-    function spawn(init = false) {
-        if (!gameActive && !init) return;
-        items.push({ 
-            x: Math.random() * (canvas.width - 60) + 30, 
-            y: init ? (Math.random() * -canvas.height) : -50, 
-            isG: Math.random() > 0.4,
-            s: (8 + level + Math.random() * 5) * speedMult
-        });
-    }
-
-    function gameOver(txt) {
-        gameActive = false; clearInterval(gameTimer);
-        playSnd(100, 'sawtooth', 0.8);
-        const m = document.getElementById('msg-overlay');
-        m.innerText = txt; m.style.color = "var(--danger)"; m.style.display = 'block';
-        setTimeout(() => { m.style.display = 'none'; desistir(); }, 2000);
-    }
-
-    // FUNÇÃO QUE RETORNA AO INÍCIO
-    function desistir() {
-        gameActive = false;
-        clearInterval(gameTimer);
-        document.getElementById('ui').style.display = 'none';
-        document.getElementById('quiz-modal').style.display = 'none';
-        document.getElementById('btn-desistir').style.display = 'none'; // SOME O BOTÃO
-        document.getElementById('modal').style.display = 'flex';
-        renderTabs(); 
-        updateMenu();
-    }
-
-    function showQuiz() {
-        gameActive = false; clearInterval(gameTimer);
-        const d = districts[level];
-        const q = d.quiz[Math.floor(Math.random() * d.quiz.length)];
-        document.getElementById('q-question').innerText = q.q;
-        const opts = document.getElementById('q-options');
-        opts.innerHTML = "";
-        q.o.forEach((opt, i) => {
-            const b = document.createElement('button');
-            b.className = "btn-main";
-            b.innerText = opt;
-            b.onclick = () => {
-                if(i === q.a) {
-                    playSnd(800, 'sine', 0.5);
-                    const m = document.getElementById('msg-overlay');
-                    m.innerText = "DISTRITO LIBERADO!"; m.style.color = "var(--success)"; m.style.display = 'block';
-                    setTimeout(() => { m.style.display = 'none'; level = (level + 1) % districts.length; desistir(); }, 1500);
-                } else {
-                    document.getElementById('quiz-modal').style.display = 'none';
-                    gameOver("RESPOSTA INCORRETA!");
-                }
-            };
-            opts.appendChild(b);
-        });
-        document.getElementById('quiz-modal').style.display = 'flex';
-    }
-
-    function loop() {
-        if(gameActive) {
-            const d = districts[level];
-            ctx.fillStyle = d.bg; ctx.fillRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = d.gr; ctx.fillRect(0, canvas.height*0.88, canvas.width, canvas.height*0.12);
-            
-            ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(player.x, player.y, 22, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = "var(--gold)"; ctx.lineWidth = 3; ctx.stroke();
-
-            for(let i = items.length - 1; i >= 0; i--) {
-                let it = items[i]; it.y += it.s;
-                ctx.font = "38px Arial"; ctx.textAlign = "center";
-                ctx.fillText(it.isG ? d.icon : d.enemy, it.x, it.y);
-                
-                if(Math.hypot(player.x - it.x, player.y - it.y) < 40) {
-                    if(it.isG) { 
-                        score++; speedMult += 0.05; playSnd(600 + score*20, 'sine', 0.1); 
-                    } else { 
-                        score = Math.max(0, score - 3); playSnd(150, 'sawtooth', 0.2);
-                        document.getElementById('damage-overlay').style.display='block'; 
-                        setTimeout(()=>document.getElementById('damage-overlay').style.display='none', 80); 
-                    }
-                    items.splice(i, 1); spawn(); updateUI();
-                    if(score >= 10) showQuiz();
-                } else if(it.y > canvas.height + 50) { items.splice(i, 1); spawn(); }
-            }
+    function jogarNivel(idx) {
+        if(idx > progresso) {
+            alert("Acesso negado. Complete o módulo anterior!");
+            return;
         }
-        requestAnimationFrame(loop);
+        nivelAtual = idx;
+        const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
+        document.documentElement.style.setProperty('--accent', temas[idx]);
+        
+        const desenhosDoNivel = NIVEIS_DATA[idx];
+        const sorteio = desenhosDoNivel[Math.floor(Math.random() * desenhosDoNivel.length)];
+        
+        mapaBinario = sorteio.m;
+        document.getElementById('statusFase').textContent = `MÓDULO 0${idx+1}`;
+        document.getElementById('nomeObjeto').textContent = sorteio.n;
+        montarJogo();
     }
 
-    function updateUI() {
-        document.getElementById('txt-target').innerText = `${score} / 10`;
-        const t = document.getElementById('txt-time');
-        t.innerText = timeLeft + "s";
-        t.className = timeLeft <= 5 ? "val timer-warn" : "val";
-        document.getElementById('txt-loc').innerText = districts[level].name;
+    function montarJogo() {
+        document.getElementById('telaMenu').classList.remove('active');
+        document.getElementById('jogoTela').classList.add('active');
+        document.getElementById('binaryDisplay').innerHTML = mapaBinario.join('<br>');
+        const grid = document.getElementById('gridDisplay');
+        grid.innerHTML = "";
+        const colunas = mapaBinario[0].length;
+        grid.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
+        mapaBinario.forEach(linha => {
+            [...linha].forEach(bit => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.bit = bit;
+                cell.onclick = () => cell.classList.toggle('active');
+                grid.appendChild(cell);
+            });
+        });
     }
 
-    const mover = (e) => {
-        const cx = e.touches ? e.touches[0].clientX : e.clientX;
-        const cy = e.touches ? e.touches[0].clientY : e.clientY;
-        player.x = cx; player.y = cy;
+    function validar() {
+        const cells = document.querySelectorAll('.cell');
+        let erro = false;
+        cells.forEach(c => {
+            const is1 = c.dataset.bit === "1";
+            const active = c.classList.contains('active');
+            if((is1 && !active) || (!is1 && active)) erro = true;
+        });
+
+        if(!erro) {
+            alert("✓ CÓDIGO COMPILADO COM SUCESSO!");
+            if(nivelAtual === 2) {
+                alert("PARABÉNS! VOCÊ DECODIFICOU A MATRIX. O SISTEMA SERÁ REINICIADO.");
+                localStorage.removeItem('pixelProgresso');
+                location.reload(); 
+            } else {
+                if(nivelAtual === progresso) {
+                    progresso++;
+                    localStorage.setItem('pixelProgresso', progresso);
+                }
+                irParaHome();
+            }
+        } else {
+            alert("× ERRO NA SEQUÊNCIA! Verifique os bits.");
+        }
+    }
+
+    function irParaHome() {
+        document.getElementById('jogoTela').classList.remove('active');
+        document.getElementById('telaMenu').classList.add('active');
+        atualizarBotoesMenu();
+    }
+
+    function atualizarBotoesMenu() {
+        for(let i=0; i<3; i++) {
+            const b = document.getElementById(`fase${i}`);
+            if(i <= progresso) b.classList.add('liberada');
+            else b.classList.remove('liberada');
+        }
+    }
+
+    // Lógica de Upload Corrigida e Integrada
+    document.getElementById('fileInput').onchange = function(e) {
+        if (!e.target.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const hCanvas = document.getElementById('helperCanvas');
+                const hCtx = hCanvas.getContext('2d');
+                
+                // Define tamanho pelo progresso atual para não quebrar a lógica do nível
+                const sizes = [4, 6, 8];
+                const pSeguro = progresso > 2 ? 2 : progresso;
+                const size = sizes[pSeguro];
+                nivelAtual = pSeguro;
+
+                hCanvas.width = size; hCanvas.height = size;
+                hCtx.drawImage(img, 0, 0, size, size);
+                const pixels = hCtx.getImageData(0, 0, size, size).data;
+                
+                let novoMapa = [];
+                for (let y = 0; y < size; y++) {
+                    let linha = "";
+                    for (let x = 0; x < size; x++) {
+                        const i = (y * size + x) * 4;
+                        const avg = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
+                        linha += (avg < 128) ? "1" : "0";
+                    }
+                    novoMapa.push(linha);
+                }
+
+                mapaBinario = novoMapa;
+                const temas = ["#00ff66", "#38bdf8", "#ff3e00"];
+                document.documentElement.style.setProperty('--accent', temas[nivelAtual]);
+                document.getElementById('statusFase').textContent = `INJECTED_MÓDULO_0${nivelAtual+1}`;
+                document.getElementById('nomeObjeto').textContent = "EXT_DATA.RAW";
+                
+                montarJogo();
+                e.target.value = ""; 
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
     };
-    window.addEventListener('mousemove', mover);
-    window.addEventListener('touchmove', (e) => { mover(e); e.preventDefault(); }, {passive:false});
-    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-    
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    player = { x: canvas.width/2, y: canvas.height/2 };
-    renderTabs(); updateMenu(); loop();
+
+    function limpar() {
+        document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+    }
+
+    atualizarBotoesMenu();
 </script>
 </body>
 </html>
