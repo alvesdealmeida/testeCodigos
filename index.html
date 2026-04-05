@@ -6,35 +6,40 @@
     <title>Araruama: Guardião da História</title>
     <style>
         :root { --gold: #f4d03f; --danger: #ff4757; --deep-green: #1b4d3e; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
         
         #ui { position: absolute; top: 10px; left: 10px; color: white; z-index: 10; pointer-events: none; display: none; }
-        #stats { display: flex; gap: 10px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; border: 1px solid var(--gold); }
-        .label { color: var(--gold); font-size: 0.6rem; display: block; }
-        .val { font-size: 0.8rem; font-weight: bold; }
+        #stats { display: flex; gap: 10px; background: rgba(0,0,0,0.8); padding: 12px; border-radius: 12px; border: 2px solid var(--gold); }
+        .label { color: var(--gold); font-size: 0.6rem; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .val { font-size: 1rem; font-weight: bold; }
 
         #btn-desistir {
-            position: absolute; bottom: 20px; right: 20px; width: 50px; height: 50px; 
-            background: rgba(0,0,0,0.8); border: 2px solid var(--danger); border-radius: 50%;
-            color: var(--danger); font-size: 1.5rem; display: none; align-items: center; 
-            justify-content: center; z-index: 100; cursor: pointer;
+            position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; 
+            background: rgba(0,0,0,0.8); border: 3px solid var(--danger); border-radius: 50%;
+            color: var(--danger); font-size: 2rem; display: none; align-items: center; 
+            justify-content: center; z-index: 100; cursor: pointer; box-shadow: 0 0 15px rgba(255,0,0,0.4);
         }
 
         .modal { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; align-items: center; justify-content: center; 
-            background: #0f2027; z-index: 200; 
+            background: radial-gradient(circle, #2c5364, #203a43, #0f2027); z-index: 200; 
         }
-        .card { background: white; width: 85%; max-width: 380px; border-radius: 20px; overflow: hidden; text-align: center; border: 3px solid var(--gold); }
-        .card-header { background: var(--deep-green); color: white; padding: 12px; font-weight: bold; }
-        .card-body { padding: 20px; }
+        .card { background: white; width: 85%; max-width: 400px; border-radius: 25px; overflow: hidden; text-align: center; border: 4px solid var(--gold); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .card-header { background: var(--deep-green); color: white; padding: 15px; font-weight: bold; font-size: 1.2rem; }
+        .card-body { padding: 25px; }
 
-        .tabs { display: flex; gap: 5px; justify-content: center; margin-bottom: 15px; }
-        .tab { padding: 8px; background: #eee; font-size: 0.65rem; cursor: pointer; border-radius: 5px; flex: 1; }
-        .tab.active { background: var(--gold); font-weight: bold; }
+        .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .tab { padding: 10px; background: #f0f0f0; font-size: 0.7rem; cursor: pointer; border-radius: 8px; flex: 1; transition: 0.3s; border: 1px solid #ddd; }
+        .tab.active { background: var(--gold); font-weight: bold; border-color: #b8860b; transform: scale(1.05); }
 
-        .btn-main { background: var(--deep-green); color: white; padding: 15px; border: none; border-radius: 50px; font-weight: bold; width: 100%; cursor: pointer; }
-        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,0,0,0.4); display:none; pointer-events:none; z-index:5; }
+        .btn-main { background: var(--deep-green); color: white; padding: 18px; border: none; border-radius: 50px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; text-transform: uppercase; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.95); }
+
+        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,0,0,0.5); display:none; pointer-events:none; z-index:5; }
+        
+        /* Confetes */
+        .confetti { position: absolute; width: 10px; height: 10px; z-index: 300; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -44,11 +49,12 @@
 
 <div id="ui">
     <div id="stats">
-        <div><span class="label">LOCAL</span><span id="txt-loc" class="val">-</span></div>
-        <div><span class="label">CONHECIMENTO</span><span id="txt-target" class="val">0 / 10</span></div>
+        <div><span class="label">MISSÃO</span><span id="txt-loc" class="val">-</span></div>
+        <div><span class="label">PONTOS</span><span id="txt-target" class="val">0 / 10</span></div>
     </div>
 </div>
 
+<!-- Menu Principal -->
 <div id="modal" class="modal">
     <div class="card">
         <div class="card-header">ARARUAMA: GUARDIÃO</div>
@@ -58,20 +64,21 @@
                 <div class="tab" onclick="mudarTab(1)">S. VICENTE</div>
                 <div class="tab" onclick="mudarTab(2)">LAGUNA</div>
             </div>
-            <span id="m-icon" style="font-size: 3rem;">🐚</span>
-            <h3 id="m-title" style="margin: 10px 0;">Os Sambaquis</h3>
-            <p id="m-text" style="font-size: 0.85rem; color: #666; margin-bottom: 20px;"></p>
-            <button class="btn-main" onclick="startLevel()">INICIAR EXPEDIÇÃO</button>
+            <span id="m-icon" style="font-size: 4rem; display: block; margin-bottom: 10px;">🐚</span>
+            <h2 id="m-title" style="margin: 0 0 10px 0; color: var(--deep-green);">Os Sambaquis</h2>
+            <p id="m-text" style="font-size: 1rem; color: #555; margin-bottom: 25px; line-height: 1.4;"></p>
+            <button class="btn-main" onclick="startLevel()">INICIAR MISSÃO</button>
         </div>
     </div>
 </div>
 
-<div id="quiz-modal" class="modal" style="display:none; background: rgba(0,0,0,0.9);">
+<!-- Quiz -->
+<div id="quiz-modal" class="modal" style="display:none; background: rgba(0,0,0,0.95);">
     <div class="card">
-        <div class="card-header">DESAFIO HISTÓRICO</div>
+        <div class="card-header">DESAFIO DO GUARDIÃO</div>
         <div class="card-body">
-            <p id="q-question" style="font-weight:bold; margin-bottom: 15px;"></p>
-            <div id="q-options" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <p id="q-question" style="font-weight:bold; font-size: 1.1rem; margin-bottom: 20px;"></p>
+            <div id="q-options" style="display:flex; flex-direction:column; gap:12px;"></div>
         </div>
     </div>
 </div>
@@ -81,36 +88,57 @@
 <script>
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     let level = 0, score = 0, gameActive = false;
     let player = { x: 0, y: 0 }; 
     let items = [];
 
     const campaign = [
         { 
-            title: "Os Sambaquis", loc: "Centro", 
-            info: "Recupere as conchas tupi. Cuidado com os caranguejos da Praia do Hospício!", 
+            title: "Os Sambaquis", loc: "Praia do Hospício", 
+            info: "Recupere as conchas sagradas (🐚). Cuidado com os caranguejos (🦀)!", 
             icon: "🐚", enemy: "🦀", bg: "#87CEEB", gr: "#f4d03f", 
-            q: "O que significa Araruama?", opts: ["Terra do Sol", "Lugar de Conchas", "Rio Salgado"], ans: 1 
+            q: "O que significa o nome Araruama?", opts: ["Terra das Araras", "Lugar de Conchas", "Lagoa Azul"], ans: 1 
         },
         { 
-            title: "São Vicente Rural", loc: "2º Distrito", 
-            info: "Colete as laranjas e limões da produção local. Fuja das lagartas!", 
+            title: "São Vicente", loc: "Zona Rural", 
+            info: "Colete laranjas (🍊) da colheita. Desvie das lagartas (🐛) das pragas!", 
             icon: "🍊", enemy: "🐛", bg: "#2d5a27", gr: "#8b4513", 
-            q: "São Vicente é o coração...", opts: ["Comercial", "Industrial", "Agrícola"], ans: 2 
+            q: "São Vicente é famoso por qual produção?", opts: ["Sal Marinho", "Citricultura (Laranja)", "Pesca"], ans: 1 
         },
         { 
-            title: "Salina e Moinhos", loc: "Laguna", 
-            info: "O Ciclo do Sal! Colete o 'Ouro Branco' e fuja das tempestades.", 
+            title: "Ciclo do Sal", loc: "Salinas", 
+            info: "Recolha o 'Ouro Branco' (🧂). Fuja das tempestades (⛈️) que estragam o sal!", 
             icon: "🧂", enemy: "⛈️", bg: "#0077be", gr: "#fff", 
-            q: "Qual a função histórica dos moinhos na orla?", opts: ["Fazer farinha", "Bombear água para o sal", "Gerar eletricidade"], ans: 1 
+            q: "Os moinhos serviam para bombear água de onde?", opts: ["Do Rio Paraíba", "Da Lagoa de Araruama", "De poços artesianos"], ans: 1 
         }
     ];
 
+    // --- SONS ---
+    function playTone(freq, type, duration, vol=0.1) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function soundGain() { playTone(600, 'sine', 0.2); playTone(900, 'sine', 0.3); }
+    function soundLoss() { playTone(150, 'sawtooth', 0.4, 0.2); }
+    function soundWin() { 
+        [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.5), i * 150));
+    }
+
+    // --- MECÂNICAS ---
     function mudarTab(idx) {
         level = idx;
-        const tabs = document.querySelectorAll('.tab');
-        tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+        document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
         const c = campaign[level];
         document.getElementById('m-icon').innerText = c.icon;
         document.getElementById('m-title').innerText = c.title;
@@ -118,19 +146,20 @@
     }
 
     function startLevel() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         document.getElementById('modal').style.display = 'none';
         document.getElementById('ui').style.display = 'block';
         document.getElementById('btn-desistir').style.display = 'flex';
         score = 0; 
-        items = []; 
+        items = []; // LIMPA TOTALMENTE OS ITENS ANTIGOS
         gameActive = true;
         updateUI();
-        // Spawna os itens específicos do nível atual
         for(let i=0; i<8; i++) spawn(true);
     }
 
     function desistir() {
         gameActive = false;
+        items = [];
         document.getElementById('ui').style.display = 'none';
         document.getElementById('btn-desistir').style.display = 'none';
         document.getElementById('modal').style.display = 'flex';
@@ -138,14 +167,14 @@
 
     function spawn(init = false) {
         if (!gameActive && !init) return;
-        const c = campaign[level]; // Pega os dados do nível selecionado
+        const c = campaign[level];
         items.push({ 
-            x: Math.random() * (canvas.width - 40) + 20, 
+            x: Math.random() * (canvas.width - 60) + 30, 
             y: init ? (Math.random() * -canvas.height) : -50, 
-            isG: Math.random() > 0.45, // 55% de chance de ser inimigo
+            isG: Math.random() > 0.5, 
             s: (3 + level) + Math.random() * 2,
-            goodIcon: c.icon,   // Fixa o ícone bom do nível
-            badIcon: c.enemy    // Fixa o ícone ruim do nível
+            icon: c.icon,   // ÍCONE DO NÍVEL ATUAL
+            enemy: c.enemy  // INIMIGO DO NÍVEL ATUAL
         });
     }
 
@@ -153,6 +182,25 @@
         const c = campaign[level];
         document.getElementById('txt-target').innerText = `${score} / 10`;
         document.getElementById('txt-loc').innerText = c.loc;
+    }
+
+    function createConfetti() {
+        soundWin();
+        for(let i=0; i<50; i++) {
+            const conf = document.createElement('div');
+            conf.className = 'confetti';
+            conf.style.left = Math.random() * 100 + 'vw';
+            conf.style.top = '-10px';
+            conf.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+            conf.style.transform = `rotate(${Math.random()*360}deg)`;
+            document.body.appendChild(conf);
+            
+            const anim = conf.animate([
+                { top: '-10px', opacity: 1 },
+                { top: '100vh', opacity: 0, transform: `rotate(${Math.random()*720}deg)` }
+            ], { duration: 2000 + Math.random()*2000, easing: 'ease-out' });
+            anim.onfinish = () => conf.remove();
+        }
     }
 
     function showQuiz() {
@@ -164,16 +212,19 @@
         c.opts.forEach((o, i) => {
             const b = document.createElement('button');
             b.className = "btn-main";
-            b.style.padding = "10px";
             b.innerText = o;
             b.onclick = () => {
                 if(i === c.ans) {
-                    alert("Excelente! Você preservou a história.");
-                    level = (level + 1) % campaign.length;
-                    document.getElementById('quiz-modal').style.display = 'none';
-                    desistir();
+                    createConfetti();
+                    setTimeout(() => {
+                        alert("Parabéns, Guardião!");
+                        level = (level + 1) % campaign.length;
+                        document.getElementById('quiz-modal').style.display = 'none';
+                        desistir();
+                    }, 1000);
                 } else {
-                    alert("Algo deu errado na cronologia. Tente de novo.");
+                    soundLoss();
+                    alert("Resposta errada! A história foi esquecida... Tente o nível novamente.");
                     document.getElementById('quiz-modal').style.display = 'none';
                     startLevel();
                 }
@@ -189,29 +240,25 @@
             ctx.fillStyle = c.bg; ctx.fillRect(0,0,canvas.width, canvas.height);
             ctx.fillStyle = c.gr; ctx.fillRect(0, canvas.height*0.85, canvas.width, canvas.height*0.15);
             
-            // Desenha Jogador (Círculo Branco com Borda Dourada)
-            ctx.fillStyle = "white"; ctx.beginPath(); 
-            ctx.arc(player.x, player.y, 22, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = "gold"; ctx.lineWidth = 3; ctx.stroke();
+            // Jogador
+            ctx.fillStyle = "white"; ctx.shadowBlur = 15; ctx.shadowColor = "rgba(0,0,0,0.3)";
+            ctx.beginPath(); ctx.arc(player.x, player.y, 25, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = "gold"; ctx.lineWidth = 4; ctx.stroke();
+            ctx.shadowBlur = 0;
 
-            // Processa Itens
             for(let i = items.length - 1; i >= 0; i--) {
                 let it = items[i];
                 it.y += it.s;
                 
-                ctx.font = "32px Arial"; ctx.textAlign = "center";
-                // Usa os ícones injetados pelo spawn para garantir sincronia
-                ctx.fillText(it.isG ? it.goodIcon : it.badIcon, it.x, it.y);
+                ctx.font = "38px Arial"; ctx.textAlign = "center";
+                ctx.fillText(it.isG ? it.icon : it.enemy, it.x, it.y);
                 
-                // Colisão
-                const dist = Math.hypot(player.x - it.x, player.y - it.y);
-                if(dist < 38) {
-                    if(it.isG) {
-                        score++;
-                    } else { 
-                        score = Math.max(0, score - 2); 
+                if(Math.hypot(player.x - it.x, player.y - it.y) < 45) {
+                    if(it.isG) { score++; soundGain(); }
+                    else { 
+                        score = Math.max(0, score - 2); soundLoss();
                         document.getElementById('damage-overlay').style.display='block'; 
-                        setTimeout(()=>document.getElementById('damage-overlay').style.display='none', 100); 
+                        setTimeout(()=>document.getElementById('damage-overlay').style.display='none', 150); 
                     }
                     items.splice(i, 1);
                     spawn();
@@ -226,15 +273,6 @@
         requestAnimationFrame(loop);
     }
 
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        if(!gameActive) {
-            player.x = canvas.width / 2;
-            player.y = canvas.height * 0.7;
-        }
-    }
-
     const mover = (e) => {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -244,9 +282,10 @@
 
     window.addEventListener('mousemove', mover);
     window.addEventListener('touchmove', (e) => { mover(e); e.preventDefault(); }, {passive:false});
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
     
-    resize();
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    player = { x: canvas.width/2, y: canvas.height/2 };
     mudarTab(0);
     loop();
 </script>
