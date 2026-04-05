@@ -281,16 +281,13 @@ function buildGrid() {
 
 function onCellClick(row, col) {
   if (executing) return;
-  
-  // Se clicar em um alvo já existente, remove ele
   const existingIdx = targets.findIndex(t => t.row === row && t.col === col);
   if (existingIdx !== -1) {
     targets.splice(existingIdx, 1);
   } else {
-    if (targets.length >= 3) return; // Limite de 3
+    if (targets.length >= 3) return;
     targets.push({ row, col });
   }
-
   updateTargetDisplay();
   renderGrid();
   updateButtons();
@@ -309,10 +306,8 @@ function renderGrid() {
   CHARS.forEach((ch, idx) => {
     const row = Math.floor(idx / COLS), col = idx % COLS, cell = document.getElementById(`cell-${row}-${col}`);
     cell.className = 'cell';
-    cell.innerHTML = ch; // Reseta conteúdo
-
+    cell.innerHTML = ch;
     const targetIdx = targets.findIndex(t => t.row === row && t.col === col);
-    
     if (robot.row === row && robot.col === col) {
       cell.textContent = '🤖'; 
       cell.classList.add('robot-cell');
@@ -320,10 +315,7 @@ function renderGrid() {
     } else {
       if (targetIdx !== -1) {
           cell.classList.add('target-cell');
-          if (visitedTargetsIndices.includes(targetIdx)) {
-              cell.classList.add('target-visited');
-          }
-          // Adiciona número do destino
+          if (visitedTargetsIndices.includes(targetIdx)) cell.classList.add('target-visited');
           const badge = document.createElement('div');
           badge.className = 'target-badge';
           badge.textContent = targetIdx + 1;
@@ -360,7 +352,6 @@ async function executeCommands() {
   for (let i = 0; i < commands.length; i++) {
     document.getElementById('step-num').textContent = i + 1;
     const dir = DIRS[commands[i]], nr = currentPos.row + dir.dr, nc = currentPos.col + dir.dc;
-    
     await new Promise(r => setTimeout(r, 400));
     
     if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) { 
@@ -373,7 +364,6 @@ async function executeCommands() {
     currentPos = { row: nr, col: nc }; 
     robot = { ...currentPos }; 
 
-    // Verifica se passou pelo próximo alvo da lista
     if (nextTargetToVisit < targets.length) {
         const t = targets[nextTargetToVisit];
         if (robot.row === t.row && robot.col === t.col) {
@@ -381,24 +371,22 @@ async function executeCommands() {
             nextTargetToVisit++;
         }
     }
-
     renderGrid();
   }
 
+  // Verificar resultado final
   if (visitedTargetsIndices.length === targets.length) { 
     playSound('success'); 
     setStatus('success', '🎉 Todos os destinos alcançados!');
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#3A8FE8', '#E8773A', '#9B59B6', '#27AE60', '#F5C842']
-    });
-  }
-  else { 
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#3A8FE8', '#E8773A', '#9B59B6', '#27AE60', '#F5C842'] });
+  } else { 
     playSound('error'); 
     setStatus('error', '❌ Faltou destino ou ordem errada!'); 
   }
+  
+  // AGUARDAR E REINICIAR (A mudança principal está aqui)
+  await new Promise(r => setTimeout(r, 2000)); // Espera 2 segundos para o jogador ver o resultado
+  resetAll();
   
   executing = false; 
   setControlsDisabled(false); 
@@ -419,16 +407,21 @@ function resetAll() {
 }
 
 function setStatus(t, m) { const s = document.getElementById('status-bar'); s.className = 'status-bar ' + t; s.textContent = m; }
-function setControlsDisabled(d) { ['btn-up','btn-down','btn-left','btn-right','btn-undo','btn-clear','btn-exec'].forEach(id => document.getElementById(id).disabled = d); }
-function updateButtons() { document.getElementById('btn-exec').disabled = (commands.length === 0 || targets.length === 0 || executing); }
+function setControlsDisabled(d) { ['btn-up','btn-down','btn-left','btn-right','btn-undo','btn-clear','btn-exec'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.disabled = d;
+}); }
+function updateButtons() { 
+    const btn = document.getElementById('btn-exec');
+    if(btn) btn.disabled = (commands.length === 0 || targets.length === 0 || executing); 
+}
 
 function setRandomTargets() {
     resetAll();
-    const numTargets = Math.floor(Math.random() * 2) + 2; // Sorteia 2 ou 3
+    const numTargets = Math.floor(Math.random() * 2) + 2; 
     while(targets.length < numTargets) {
         let r = Math.floor(Math.random() * ROWS);
         let c = Math.floor(Math.random() * COLS);
-        // Evita duplicados e evita a posição inicial do robô (0,0)
         if (!targets.some(t => t.row === r && t.col === c) && !(r === 0 && c === 0)) {
             targets.push({ row: r, col: c });
         }
